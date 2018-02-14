@@ -125,33 +125,39 @@
                 }
             }
         },
-        {
-            "name": "[parameters('dbVMName')]",
-            "type": "Microsoft.Compute/virtualMachines",
-            "location": "[parameters('location')]",
-            "apiVersion": "2016-03-30",
-            "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('dbVMNicName'))]"
-            ],
-            "plan": {
+      {
+        "name": "[parameters('dbVMName')]",
+        "type": "Microsoft.Compute/virtualMachines",
+        "location": "[parameters('location')]",
+        "apiVersion": "2016-03-30",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkInterfaces/', variables('dbVMNicName'))]"
+        ],
+        /* "plan": {
                 "name": "[variables('osVersion')]",
                 "publisher": "[variables('imagePublisher')]",
                 "product": "[variables('imageOffer')]"
-            },
-            "tags": {
-                "displayName": "dbvm",
-                "provider": "[toUpper(parameters('informaticaTags').provider)]"
-            },
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[parameters('DBVMSize')]"
-                },
-                "osProfile": {
-                    "computerName": "[parameters('dbVMName')]",
-                    "adminUsername": "[parameters('dbVMAdminUsername')]",
-                    "adminPassword": "[parameters('dbVMAdminPassword')]"
-                },
-                "storageProfile": {
+            }, */
+
+        "plan": {
+          "name": "sqlserver-2014-image-for-pc-bdm",
+          "publisher": "informatica",
+          "product": "sqlserver-2014-image"
+        },
+        "tags": {
+          "displayName": "dbvm",
+          "provider": "[toUpper(parameters('informaticaTags').provider)]"
+        },
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('DBVMSize')]"
+          },
+          "osProfile": {
+            "computerName": "[parameters('dbVMName')]",
+            "adminUsername": "[parameters('dbVMAdminUsername')]",
+            "adminPassword": "[parameters('dbVMAdminPassword')]"
+          },
+          /*           "storageProfile": {
                     "imageReference": {
                         "publisher": "[variables('imagePublisher')]",
                         "offer": "[variables('imageOffer')]",
@@ -166,45 +172,60 @@
                         "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/vhds/', toLower(parameters('dbVMName')), uniqueString(resourceGroup().id, deployment().name), '.osdisk.vhd')]"
                       }
                     }
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('dbVMNicName'))]"
-                        }
-                    ]
-                }
-            },
-            "resources": [
-                {
-                    "name": "ScriptExtDB",
-                    "type": "extensions",
-                    "location": "[parameters('location')]",
-                    "apiVersion": "2016-03-30",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', parameters('dbVMName'))]"
-                    ],
-                    "tags": {
-                        "displayName": "informaticadbextension",
-                        "provider": "[toUpper(parameters('informaticaTags').provider)]"
-                    },
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.8",
-                        "autoUpgradeMinorVersion": false,
-                        "settings": {
-                            "fileUris": [
-                                "[concat(variables('extScriptURI'),  variables('extScriptFile'))]"
-                            ]
-                        },
-                      "protectedSettings": {
-                        "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ', variables('extScriptFile'), ' -dbUserName \"', parameters('DBUser'), '\" -dbPassword \"', parameters('DBPassword'), '\" -dbmrsuser \"', parameters('mrsdbuser'), '\" -dbmrspwd \"', parameters('mrsdbpwd'), '\" -dbrefdatauser \"', parameters('refdatadbuser'), '\" -dbrefdatapwd \"', parameters('refdatadbpwd'), '\" -dbprofileuser \"', parameters('profiledbuser'), '\" -dbprofilepwd \"', parameters('profiledbpwd'), '\"')]"
-                      }
-                    }
-                }
+                }, */
+          "storageProfile": {
+            "osDisk": {
+              "osType": "Windows",
+              "name": "DQSqlServerTemplate-osDisk.b0fb2fa4-2b02-46b8-8224-3aed0da048d7.vhd",
+              "createOption": "FromImage",
+              "image": {
+                "uri": "https://dq1011hf2win1.blob.core.windows.net/system/Microsoft.Compute/Images/dqsqlservercontainer/DQSqlServerTemplate-osDisk.b0fb2fa4-2b02-46b8-8224-3aed0da048d7.vhd"
+              },
+              "vhd": {
+                "uri": "https://dq1011hf2win1.blob.core.windows.net/vmcontainer0ebddd3e-945f-4c7b-a362-b7a6e96a8255/osDisk.0ebddd3e-945f-4c7b-a362-b7a6e96a8255.vhd"
+              },
+              "caching": "ReadWrite"
+            }
+          },
+
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('dbVMNicName'))]"
+              }
             ]
-        }
+          }
+        },
+        "resources": [
+          {
+            "name": "ScriptExtDB",
+            "type": "extensions",
+            "location": "[parameters('location')]",
+            "apiVersion": "2016-03-30",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('dbVMName'))]"
+            ],
+            "tags": {
+              "displayName": "informaticadbextension",
+              "provider": "[toUpper(parameters('informaticaTags').provider)]"
+            },
+            "properties": {
+              "publisher": "Microsoft.Compute",
+              "type": "CustomScriptExtension",
+              "typeHandlerVersion": "1.8",
+              "autoUpgradeMinorVersion": false,
+              "settings": {
+                "fileUris": [
+                  "[concat(variables('extScriptURI'),  variables('extScriptFile'))]"
+                ]
+              },
+              "protectedSettings": {
+                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ', variables('extScriptFile'), ' -dbUserName \"', parameters('DBUser'), '\" -dbPassword \"', parameters('DBPassword'), '\" -dbmrsuser \"', parameters('mrsdbuser'), '\" -dbmrspwd \"', parameters('mrsdbpwd'), '\" -dbrefdatauser \"', parameters('refdatadbuser'), '\" -dbrefdatapwd \"', parameters('refdatadbpwd'), '\" -dbprofileuser \"', parameters('profiledbuser'), '\" -dbprofilepwd \"', parameters('profiledbpwd'), '\"')]"
+              }
+            }
+          }
+        ]
+      }
     ],
     "outputs": {
         "fqdn": {
