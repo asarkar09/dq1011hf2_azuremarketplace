@@ -233,7 +233,36 @@
                 ]
               },
               "protectedSettings": {
-                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ', variables('extScriptFile'), ' -dbUserName \"', parameters('DBUser'), '\" -dbPassword \"', parameters('DBPassword'), '\" -dbmrsuser \"', parameters('mrsdbuser'), '\" -dbmrspwd \"', parameters('mrsdbpwd'), '\" -dbrefdatauser \"', parameters('refdatadbuser'), '\" -dbrefdatapwd \"', parameters('refdatadbpwd'), '\" -dbprofileuser \"', parameters('profiledbuser'), '\" -dbprofilepwd \"', parameters('profiledbpwd'),'\" -dbName \"', parameters('dbName'), '\"')]"
+                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ', variables('extScriptFile'), ' -osUsername \"', parameters('dbVMAdminUsername'), '\" -osPassword \"', parameters('dbVMAdminPassword'),'\" -dbUserName \"', parameters('DBUser'), '\" -dbPassword \"', parameters('DBPassword'), '\" -dbmrsuser \"', parameters('mrsdbuser'), '\" -dbmrspwd \"', parameters('mrsdbpwd'), '\" -dbrefdatauser \"', parameters('refdatadbuser'), '\" -dbrefdatapwd \"', parameters('refdatadbpwd'), '\" -dbprofileuser \"', parameters('profiledbuser'), '\" -dbprofilepwd \"', parameters('profiledbpwd'),'\" -dbName \"', parameters('dbName'), '\"')]"
+              }
+            }
+          },
+          {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('dbVMName'), '/SqlIaasExtension')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('dbVMName'))]",
+              "ScriptExtDB"
+            ],
+            "properties": {
+              "type": "SqlIaaSAgent",
+              "publisher": "Microsoft.SqlServer.Management",
+              "typeHandlerVersion": "1.2",
+              "autoUpgradeMinorVersion": true,
+              "settings": {
+                "AutoTelemetrySettings": {
+                  "Region": "[parameters('location')]"
+                },
+                "KeyVaultCredentialSettings": {
+                  "Enable": false,
+                  "CredentialName": ""
+                }
+              },
+              "protectedSettings": {
+                "SQLAuthUpdateUserName": "[parameters('dbVMAdminUsername')]",
+                "SQLAuthUpdatePassword": "[parameters('dbVMAdminPassword')]"
               }
             }
           }
