@@ -398,6 +398,9 @@
                 "storageName": {
                   "value": "[parameters('storageName')]"
                 },
+                "dbType": {
+                  "value": "[parameters('dbType')]"
+                },
                 "dbVMName": {
                   "value": "[parameters('dbVMName')]"
                 },
@@ -477,6 +480,9 @@
                 },
                 "storageID": {
                   "value": "[variables('storageID')]"
+                },
+                "dbType": {
+                  "value": "[parameters('dbType')]"
                 },
                 "vnetName": {
                   "value": "[parameters('vnetName')]"
