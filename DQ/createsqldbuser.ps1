@@ -1,4 +1,6 @@
 Param(
+        [string]$osUsername,
+        [string]$osPassword,
 	[string]$dbUserName,
 	[string]$dbPassword,
 	[string]$dbmrsuser,
@@ -10,6 +12,22 @@ Param(
 	 [string]$dbName
 )
 
+Enable-PSRemoting -Force
+$credential = New-Object System.Management.Automation.PSCredential @(($env:COMPUTERNAME + "\" + $osUsername), (ConvertTo-SecureString -String $osPassword -AsPlainText -Force))
+
+Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList $dbUsername,$dbPassword,$dbmrsuser,$dbmrspwd,$dbrefdatauser,$dbrefdatapwd,$dbprofileuser,$dbprofilepwd,$dbName -ScriptBlock {
+    Param 
+    (
+        [string]$dbUsername,
+        [string]$dbPassword,
+		[string]$dbmrsuser,
+		[string]$dbmrspwd,
+		[string]$dbrefdatauser,
+		[string]$dbrefdatapwd,
+		[string]$dbprofileuser,
+		[string]$dbprofilepwd,
+        [string]$dbName
+    )
 
 function writeLog {
     Param([string] $log)
@@ -111,7 +129,8 @@ function createDatabaseUser {
 
 	$error.clear()
 netsh advfirewall firewall add rule name="Informatica_DQ_MMSQL" dir=in action=allow profile=any localport=1433 protocol=TCP
-mkdir -Path C:\Informatica\Archive\logs 2> $null
+
+    mkdir -Path C:\Informatica\Archive\logs 2> $null
     mkdir -Path C:\SQL_DATA
 
 
