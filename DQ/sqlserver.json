@@ -20,6 +20,9 @@
     "dbVMSize": {
       "type": "string"
     },
+    "dbType": {
+      "type": "string"
+    },
     "dbUser": {
       "type": "string"
     },
@@ -63,18 +66,36 @@
       "type": "object"
     }
   },
-    "variables": {
-        "publicDNSName": "[toLower(concat(parameters('dbVMName'), uniqueString(resourceGroup().id, deployment().name)))]",
-        "dbVMNicName": "[concat(parameters('dbVMName'), 'Nic')]",
-        "dbOsType": "windows",
+  "variables": {
+    "publicDNSName": "[toLower(concat(parameters('dbVMName'), uniqueString(resourceGroup().id, deployment().name)))]",
+    "dbVMNicName": "[concat(parameters('dbVMName'), 'Nic')]",
+    "dbOsType": "windows",
 
-        "extScriptURI": "[concat(parameters('baseUrl'), '/')]",
-        "extScriptFile": "createsqldbuser.ps1",
+    "extScriptURI": "[concat(parameters('baseUrl'), '/')]",
+    "extScriptFile": "createsqldbuser.ps1",
 
-        "imagePublisher": "informatica",
+    /*    "imagePublisher": "informatica",
         "imageOffer": "sqlserver-2014-image",
-        "osVersion": "sqlserver-2014-image-for-pc-bdm"
+        "osVersion": "sqlserver-2014-image-for-pc-bdm" */
+    "databases": {
+      "sqlserver2014": {
+        "imagePublisher": "MicrosoftSQLServer",
+        "imageOffer": "SQL2014SP2-WS2012R2",
+        "osVersion": "Enterprise"
+      },
+      "sqlserver2016": {
+        "imagePublisher": "MicrosoftSQLServer",
+        "imageOffer": "SQL2016SP1-WS2016",
+        "osVersion": "Enterprise"
+      }
     },
+
+    "databaseVersion": "[variables('databases')[parameters('dbType')]]",
+
+    "publisher": "[variables('databaseVersion')['imagePublisher']]",
+    "offer": "[variables('databaseVersion')['imageOffer']]",
+    "sku": "[variables('databaseVersion')['osVersion']]"
+  },
     "resources": [
         {
             "name": "[variables('publicDNSName')]",
@@ -133,11 +154,11 @@
         "dependsOn": [
           "[concat('Microsoft.Network/networkInterfaces/', variables('dbVMNicName'))]"
         ],
-        "plan": {
+     /*   "plan": {
                 "name": "[variables('osVersion')]",
                 "publisher": "[variables('imagePublisher')]",
                 "product": "[variables('imageOffer')]"
-            }, 
+            },  */
 
        
         "tags": {
@@ -153,22 +174,28 @@
             "adminUsername": "[parameters('dbVMAdminUsername')]",
             "adminPassword": "[parameters('dbVMAdminPassword')]"
           },
-                "storageProfile": {
-                    "imageReference": {
+          "storageProfile": {
+            /*   "imageReference": {
                         "publisher": "[variables('imagePublisher')]",
                         "offer": "[variables('imageOffer')]",
                         "sku": "[variables('osVersion')]",
                         "version": "latest"
-                    },
-                    "osDisk": {
-                        "name": "InfaOSDisk",
-                        "caching": "ReadWrite",
-                        "createOption": "FromImage",
-                      "vhd": {
-                        "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/vhds/', toLower(parameters('dbVMName')), uniqueString(resourceGroup().id, deployment().name), '.osdisk.vhd')]"
-                      }
-                    }
-                }, 
+                    }, */
+            "imageReference": {
+              "publisher": "[variables('publisher')]",
+              "offer": "[variables('offer')]",
+              "sku": "[variables('sku')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "name": "InfaOSDisk",
+              "caching": "ReadWrite",
+              "createOption": "FromImage",
+              "vhd": {
+                "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/vhds/', toLower(parameters('dbVMName')), uniqueString(resourceGroup().id, deployment().name), '.osdisk.vhd')]"
+              }
+            }
+          }, 
          
 
           "networkProfile": {
