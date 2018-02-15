@@ -278,8 +278,12 @@
                       "allowedValues": [
                         {
                           "label": "SQL Server 2014",
-                          "value": "sqlserver"
-                        }
+                          "value": "sqlserver2014"
+                        },
+                                        {
+                                            "label": "SQL Server 2016",
+                                            "value": "sqlserver2016"
+                                        }
                       ]
                     },
                     "visible": true
