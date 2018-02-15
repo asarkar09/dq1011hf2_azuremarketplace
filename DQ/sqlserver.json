@@ -26,6 +26,9 @@
     "dbUser": {
       "type": "string"
     },
+    "dbName": {
+      "type": "string"
+    },
     "dbPassword": {
       "type": "securestring"
     },
@@ -230,7 +233,7 @@
                 ]
               },
               "protectedSettings": {
-                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ', variables('extScriptFile'), ' -dbUserName \"', parameters('DBUser'), '\" -dbPassword \"', parameters('DBPassword'), '\" -dbmrsuser \"', parameters('mrsdbuser'), '\" -dbmrspwd \"', parameters('mrsdbpwd'), '\" -dbrefdatauser \"', parameters('refdatadbuser'), '\" -dbrefdatapwd \"', parameters('refdatadbpwd'), '\" -dbprofileuser \"', parameters('profiledbuser'), '\" -dbprofilepwd \"', parameters('profiledbpwd'), '\"')]"
+                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ', variables('extScriptFile'), ' -dbUserName \"', parameters('DBUser'), '\" -dbPassword \"', parameters('DBPassword'), '\" -dbmrsuser \"', parameters('mrsdbuser'), '\" -dbmrspwd \"', parameters('mrsdbpwd'), '\" -dbrefdatauser \"', parameters('refdatadbuser'), '\" -dbrefdatapwd \"', parameters('refdatadbpwd'), '\" -dbprofileuser \"', parameters('profiledbuser'), '\" -dbprofilepwd \"', parameters('profiledbpwd'),'\" -dbName \"', parameters('dbName'), '\"')]"
               }
             }
           }
