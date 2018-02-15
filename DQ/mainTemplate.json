@@ -216,9 +216,9 @@
       "type": "string",
       "metadata": {
         "description": "Base URL for Marketplace",
-        "artifactsBaseUrl": "https://raw.githubusercontent.com/anandamit/infadq1011/master/DQ"
+        "artifactsBaseUrl": "https://raw.githubusercontent.com/asarkar09/dq1011hf2_azuremarketplace/master/DQ"
       },
-      "defaultValue": "https://raw.githubusercontent.com/anandamit/infadq1011/master/DQ"
+      "defaultValue": "https://raw.githubusercontent.com/asarkar09/dq1011hf2_azuremarketplace/master/DQ"
     },
     "mrsdbuser": {
       "type": "string",
