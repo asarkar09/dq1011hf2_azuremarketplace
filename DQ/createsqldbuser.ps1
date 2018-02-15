@@ -6,8 +6,10 @@ Param(
 	[string]$dbrefdatauser,
 	[string]$dbrefdatapwd,
 	[string]$dbprofileuser,
-	[string]$dbprofilepwd
+	[string]$dbprofilepwd,
+	 [string]$dbName
 )
+
 
 function writeLog {
     Param([string] $log)
@@ -16,7 +18,8 @@ function writeLog {
 }
 
 function waitTillDatabaseIsAlive {
-    $connectionString = "Data Source=localhost;Integrated Security=true;Initial Catalog=infadb;Connect Timeout=3;"
+Param([string] $dbName)
+    $connectionString = "Data Source=localhost;Integrated Security=true;Initial Catalog=" + $dbName + ";Connect Timeout=3;"
     $sqlConn = new-object ("Data.SqlClient.SqlConnection") $connectionString
     $sqlConn.Open()
 
@@ -40,7 +43,7 @@ function waitTillDatabaseIsAlive {
 }
 
 function executeSQLStatement {
-    Param([String] $sqlStatement)
+    Param([String] $sqlStatement,, [string] $dbName)
 
     $errorFlag = 1
     $tryCount = 0
@@ -51,7 +54,7 @@ function executeSQLStatement {
         sleep 1
         $tryCount++
         try {
-            Invoke-Sqlcmd -ServerInstance '(local)' -Database 'infadb' -Query $sqlStatement
+            Invoke-Sqlcmd -ServerInstance '(local)' -Database $dbName -Query $sqlStatement
             $errorFlag = $error.Count
         } catch {
             $errorFlag = $error.Count
@@ -71,68 +74,51 @@ function executeSQLStatement {
 	}
 }
 
-$error.clear()
+
+function createDatabase {
+		Param([String] $dbName)
+		$newDatabase = "CREATE DATABASE " + $dbName + " ON ( NAME = " + $dbName + "_dat, FILENAME = 'C:\SQL_DATA\" + $dbName +".mdf', SIZE = 10MB, MAXSIZE = 1000MB, FILEGROWTH = 5MB ) LOG ON ( NAME = " + $dbName + "_log, FILENAME = 'C:\SQL_DATA\" + $dbName + "log.ldf', SIZE = 5MB, MAXSIZE = 500MB, FILEGROWTH = 5MB )"	
+
+		$databaseSetting = "ALTER DATABASE " + $dbName + " SET READ_COMMITTED_SNAPSHOT ON" 
+
+		writeLog "Creating database: $dbName"
+		executeStatement $newDatabase master
+
+		writeLog "Setting database READ_COMMITTED_SNAPSHOT to ON"
+		executeStatement $databaseSetting $dbName
+	}
+
+	
+function createDatabaseUser {
+		Param([String] $dbUsername, [String] $dbPassword)
+
+		
+
+			$newLogin = "CREATE LOGIN """ + $dbUsername +  """ WITH PASSWORD = '" + ($dbPassword -replace "'","''") + "'"
+			$newUser = "CREATE USER """ + $dbUsername + """ FOR LOGIN """ + $dbUsername + """ WITH DEFAULT_SCHEMA = """ + $dbUsername +""""
+			$updateUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbUsername + """;" + 
+							"ALTER ROLE db_datawriter ADD MEMBER """ + $dbUsername + """;" + 
+							"ALTER ROLE db_ddladmin ADD MEMBER """ + $dbUsername + """"
+			$newSchema = "CREATE SCHEMA """ + $dbUsername + """ AUTHORIZATION """ + $dbUsername + """"
+
+			writeLog "Creating db user: $dbUsername" 
+			executeStatement $newLogin $dbName
+			executeStatement $newUser $dbName
+			executeStatement $updateUserRole $dbName
+			executeStatement $newSchema $dbName
+		
+	}
+
+	$error.clear()
 netsh advfirewall firewall add rule name="Informatica_DQ_MMSQL" dir=in action=allow profile=any localport=1433 protocol=TCP
-mkdir -Path C:\Informatica\Archive\scripts 2> $null
-
-writeLog "Creating user: $dbUserName"
-
-$newLogin = "CREATE LOGIN """ + $dbUserName +  """ WITH PASSWORD = '" + ($dbPassword -replace "'","''") + "'"
-$newUser = "CREATE USER """ + $dbUserName + """ FOR LOGIN """ + $dbUserName + """ WITH DEFAULT_SCHEMA = """ + $dbUserName+""""
-$updateUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbUserName + """;" + 
-                        "ALTER ROLE db_datawriter ADD MEMBER """ + $dbUserName + """;" + 
-                        "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbUserName + """"
-$newSchema = "CREATE SCHEMA """ + $dbUserName + """ AUTHORIZATION """ + $dbUserName + """"
-
-waitTillDatabaseIsAlive
-executeSQLStatement $newLogin
-executeSQLStatement $newUser
-executeSQLStatement $updateUserRole
-executeSQLStatement $newSchema
+mkdir -Path C:\Informatica\Archive\logs 2> $null
+    mkdir -Path C:\SQL_DATA
 
 
-
-writeLog "Creating user for MRS: $dbmrsuser"
-
-$newMRSLogin = "CREATE LOGIN """ + $dbmrsuser +  """ WITH PASSWORD = '" + ($dbmrspwd -replace "'","''") + "'"
-$newMRSUser = "CREATE USER """ + $dbmrsuser + """ FOR LOGIN """ + $dbmrsuser + """ WITH DEFAULT_SCHEMA = """ + $dbmrsuser +""""
-$updateMRSUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbmrsuser + """;" + 
-                        "ALTER ROLE db_datawriter ADD MEMBER """ + $dbmrsuser + """;" + 
-                        "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbmrsuser + """"
-$newMRSSchema = "CREATE SCHEMA """ + $dbmrsuser + """ AUTHORIZATION """ + $dbmrsuser + """"
-
-waitTillDatabaseIsAlive
-executeSQLStatement $newMRSLogin
-executeSQLStatement $newMRSUser
-executeSQLStatement $updateMRSUserRole
-executeSQLStatement $newMRSSchema
-
-writeLog "Creating user for Reference Data: $dbrefdatauser"
-
-$newCMSLogin = "CREATE LOGIN """ + $dbrefdatauser +  """ WITH PASSWORD = '" + ($dbrefdatapwd -replace "'","''") + "'"
-$newCMSUser = "CREATE USER """ + $dbrefdatauser + """ FOR LOGIN """ + $dbrefdatauser + """ WITH DEFAULT_SCHEMA = """ + $dbrefdatauser +""""
-$updateCMSUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbrefdatauser + """;" + 
-                        "ALTER ROLE db_datawriter ADD MEMBER """ + $dbrefdatauser + """;" + 
-                        "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbrefdatauser +""""
-$newCMSSchema = "CREATE SCHEMA """ + $dbrefdatauser + """ AUTHORIZATION """ + $dbrefdatauser +""""
-
-waitTillDatabaseIsAlive
-executeSQLStatement $newCMSLogin
-executeSQLStatement $newCMSUser
-executeSQLStatement $updateCMSUserRole
-executeSQLStatement $newCMSSchema
-
-writeLog "Creating user for Profiling: $dbprofileuser"
-
-$newProfileLogin = "CREATE LOGIN """ + $dbprofileuser +  """ WITH PASSWORD = '" + ($dbprofilepwd -replace "'","''") + "'"
-$newProfileUser = "CREATE USER """ + $dbprofileuser + """ FOR LOGIN """ + $dbprofileuser + """ WITH DEFAULT_SCHEMA = """ + $dbprofileuser +""""
-$updateProfileUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbprofileuser + """;" + 
-                        "ALTER ROLE db_datawriter ADD MEMBER """ + $dbprofileuser + """;" + 
-                        "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbprofileuser +""""
-$newProfileSchema = "CREATE SCHEMA """ + $dbprofileuser + """ AUTHORIZATION """ + $dbprofileuser +""""
-
-waitTillDatabaseIsAlive
-executeSQLStatement $newProfileLogin
-executeSQLStatement $newProfileUser
-executeSQLStatement $updateProfileUserRole
-executeSQLStatement $newProfileSchema
+	waitTillDatabaseIsAlive master
+	
+	createDatabase $dbName
+	createDatabaseUser $dbUsername $dbPassword
+	createDatabaseUser $dbmrsuser $dbmrspwd
+	createDatabaseUser $dbrefdatauser $dbrefdatapwd
+	createDatabaseUser $dbprofileuser $dbprofilepwd
