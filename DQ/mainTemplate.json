@@ -261,7 +261,7 @@
         "storageUri": "[concat(variables('baseuri'), 'storage', parameters('storageExistingOrNew'),'.json')]",
         "vnetUri": "[concat(variables('baseuri'), 'vnet', parameters('vnetExistingOrNew'),'.json')]",
         "nsgUri": "[concat(variables('baseuri'), 'networksecuritygroup.json')]",
-        "dbUri": "[concat(variables('baseuri'), parameters('dbType'),'.json')]",
+        "dbUri": "[concat(variables('baseuri'), 'sqlserver.json')]",
 
         "nodeUriList": [
             "node",
