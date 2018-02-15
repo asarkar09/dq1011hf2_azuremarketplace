@@ -128,7 +128,7 @@ function createDatabaseUser {
 	}
 
 	$error.clear()
-netsh advfirewall firewall add rule name="Informatica_DQ_MMSQL" dir=in action=allow profile=any localport=1433 protocol=TCP
+netsh advfirewall firewall add rule name="Informatica_PC_MSSQL" dir=in action=allow profile=any localport=1433 protocol=TCP
 
     mkdir -Path C:\Informatica\Archive\logs 2> $null
     mkdir -Path C:\SQL_DATA
