@@ -280,16 +280,16 @@
                           "label": "SQL Server 2014",
                           "value": "sqlserver2014"
                         },
-                                        {
-                                            "label": "SQL Server 2016",
-                                            "value": "sqlserver2016"
-                                        }
+                        {
+                          "label": "SQL Server 2016",
+                          "value": "sqlserver2016"
+                        }
                       ]
                     },
                     "visible": true
                   },
                   {
-                    "name": "databaseName",
+                    "name": "databaseHostName",
                     "type": "Microsoft.Common.TextBox",
                     "label": "Database machine name",
                     "defaultValue": "DVM",
@@ -322,6 +322,18 @@
                     "osPlatform": "Windows",
                     "constraints": {
                       "required": true
+                    }
+                  },
+                  {
+                    "name": "databaseName",
+                    "type": "Microsoft.Common.TextBox",
+                    "label": "Database name",
+                    "defaultValue": "infadb",
+                    "toolTip": "Name for the database",
+                    "constraints": {
+                      "required": true,
+                      "regex": "^([a-zA-Z][a-z0-9A-Z]{2,30})$",
+                      "validationMessage": "Only alphanumeric characters are allowed. The value must be 3-30 characters long"
                     }
                   },
                   {
@@ -568,9 +580,10 @@
         "infaDomainPassword": "[steps('infaDomainConfiguration').infaDomainPassword]",
         "infaDomainLicense": "[steps('infaDomainConfiguration').infaDomainLicense]",
         "infaKeyword": "[steps('infaDomainConfiguration').infaDomainEncryptionKeyword]",
-        "dbVMName": "[steps('databaseConfiguration').databaseconfig.databaseName]",
+        "dbVMName": "[steps('databaseConfiguration').databaseconfig.databaseHostName]",
         "dbVMSize": "[steps('databaseConfiguration').databaseconfig.databaseVMSize]",
         "dbType": "[steps('databaseConfiguration').databaseconfig.databaseType]",
+        "dbName": "[steps('databaseConfiguration').databaseconfig.databaseName]",
         "dbVMAdminUsername": "[steps('databaseConfiguration').databaseconfig.dbVMAdminUsername]",
         "dbVMAdminPassword": "[steps('databaseConfiguration').databaseconfig.dbVMAdminPassword.password]",
         "dbUser": "[steps('databaseConfiguration').databaseuser.infaDomainDBUser]",
