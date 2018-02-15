@@ -89,6 +89,12 @@
         "description": "Database type. Only SQL Server 2014 and 2016 on VM is supported for now"
       }
     },
+    "dbName": {
+      "type": "string",
+      "metadata": {
+        "description": "Database service name"
+      }
+    },
     "dbVMName": {
       "type": "string",
       "metadata": {
@@ -207,7 +213,7 @@
     },
     "infaDomainLicense": {
       "type": "string",
-      "defaultValue": "nolicense",  
+      "defaultValue": "nolicense",
       "metadata": {
         "description": "Informatica domain license key file url"
       }
@@ -255,320 +261,331 @@
       }
     }
   },
-    "variables": {
-        "baseUri": "[concat(parameters('baseUrl'), '/')]",
+  "variables": {
+    "baseUri": "[concat(parameters('baseUrl'), '/')]",
 
-        "storageUri": "[concat(variables('baseuri'), 'storage', parameters('storageExistingOrNew'),'.json')]",
-        "vnetUri": "[concat(variables('baseuri'), 'vnet', parameters('vnetExistingOrNew'),'.json')]",
-        "nsgUri": "[concat(variables('baseuri'), 'networksecuritygroup.json')]",
-        "dbUri": "[concat(variables('baseuri'), 'sqlserver.json')]",
+    "storageUri": "[concat(variables('baseuri'), 'storage', parameters('storageExistingOrNew'),'.json')]",
+    "vnetUri": "[concat(variables('baseuri'), 'vnet', parameters('vnetExistingOrNew'),'.json')]",
+    "nsgUri": "[concat(variables('baseuri'), 'networksecuritygroup.json')]",
+    "dbUri": "[concat(variables('baseuri'), 'sqlserver.json')]",
 
-        "nodeUriList": [
-            "node",
-            "node",
-            "nodemulti"
-        ],
+    "nodeUriList": [
+      "node",
+      "node",
+      "nodemulti"
+    ],
 
-        "nodeVMUri": "[concat(variables('baseuri'), 'node', parameters('nodeVMOS'), parameters('nodeVMAuthType'), '.json')]",
+    "nodeVMUri": "[concat(variables('baseuri'), 'node', parameters('nodeVMOS'), parameters('nodeVMAuthType'), '.json')]",
 
-        "infaNodeNamePrefix": "node",
+    "infaNodeNamePrefix": "node",
 
-        "vnetIDs": {
-            "existing": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-            "new": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
-        },
-        "vnetID": "[variables('vnetIDs')[parameters('vnetExistingOrNew')]]",
-        "subnetID": "[concat(variables('vnetID'), '/subnets/', parameters('subnetName'))]",
-
-        "storageIDs": {
-            "existing": "[resourceId(parameters('existingStorageRG'), 'Microsoft.Storage/storageAccounts', parameters('storageName'))]",
-            "new": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageName'))]"
-        },
-        "storageID": "[variables('storageIDs')[parameters('storageExistingOrNew')]]",
-
-        "nsgName": "NetworkSecurityGroup"
+    "vnetIDs": {
+      "existing": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+      "new": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
     },
+    "vnetID": "[variables('vnetIDs')[parameters('vnetExistingOrNew')]]",
+    "subnetID": "[concat(variables('vnetID'), '/subnets/', parameters('subnetName'))]",
+
+    "storageIDs": {
+      "existing": "[resourceId(parameters('existingStorageRG'), 'Microsoft.Storage/storageAccounts', parameters('storageName'))]",
+      "new": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageName'))]"
+    },
+    "storageID": "[variables('storageIDs')[parameters('storageExistingOrNew')]]",
+
+    "nsgName": "NetworkSecurityGroup",
+    "dbTypes": {
+      "sqlserver2014": "MSSQLServer",
+      "sqlserver2016": "MSSQLServer"
+    },
+    "dbType": "[variables('dbTypes')[parameters('dbType')]]"
+  },
     "resources": [
-        {
-            "name": "storageSetup",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('storageUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "storageName": {
-                        "value": "[parameters('storageName')]"
-                    },
-                    "storageType": {
-                        "value": "[parameters('storageType')]"
-                    },
-                    "existingStorageRG": {
-                        "value": "[parameters('existingStorageRG')]"
-                    },
-                    "informaticaTags": { 
-                        "value": "[parameters('informaticaTags')]"
-                    }
-                }
+      {
+        "name": "storageSetup",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2016-09-01",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('storageUri')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "storageName": {
+              "value": "[parameters('storageName')]"
+            },
+            "storageType": {
+              "value": "[parameters('storageType')]"
+            },
+            "existingStorageRG": {
+              "value": "[parameters('existingStorageRG')]"
+            },
+            "informaticaTags": {
+              "value": "[parameters('informaticaTags')]"
             }
-        },
-        {
-            "name": "vnetSetup",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('vnetUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "vnetName": {
-                        "value": "[parameters('vnetName')]"
-                    },
-                    "vnetAddressPrefix": {
-                        "value": "[parameters('vnetAddressPrefix')]"
-                    },
-                    "subnetName": {
-                        "value": "[parameters('subnetName')]"
-                    },
-                    "subnetPrefix": {
-                        "value": "[parameters('subnetPrefix')]"
-                    },
-                    "existingVnetRG": {
-                        "value": "[parameters('existingVnetRG')]"
-                    },
-                    "informaticaTags": { 
-                        "value": "[parameters('informaticaTags')]"
-                    }
-                }
-            }
-        },
-        {
-            "name": "nsgSetup",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('nsgUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "nsgName": {
-                        "value": "[variables('nsgName')]"
-                    },
-                    "informaticaTags": { 
-                        "value": "[parameters('informaticaTags')]"
-                    }
-                }
-            }
-        },
-        {
-            "name": "databaseSetup",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
-            "dependsOn": [
-                "Microsoft.Resources/deployments/storageSetup",
-                "Microsoft.Resources/deployments/vnetSetup",
-                "Microsoft.Resources/deployments/nsgSetup"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('dbUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-              "parameters": {
-                "location": {
-                  "value": "[parameters('location')]"
-                },
-                "storageName": {
-                  "value": "[parameters('storageName')]"
-                },
-                "dbType": {
-                  "value": "[parameters('dbType')]"
-                },
-                "dbVMName": {
-                  "value": "[parameters('dbVMName')]"
-                },
-                "dbVMAdminUsername": {
-                  "value": "[parameters('dbVMAdminUsername')]"
-                },
-                "dbVMAdminPassword": {
-                  "value": "[parameters('dbVMAdminPassword')]"
-                },
-                "dbVMSize": {
-                  "value": "[parameters('dbVMSize')]"
-                },
-                "dbUser": {
-                  "value": "[parameters('dbUser')]"
-                },
-                "dbPassword": {
-                  "value": "[parameters('dbPassword')]"
-                },
-                "vnetName": {
-                  "value": "[parameters('vnetName')]"
-                },
-                "subnetName": {
-                  "value": "[parameters('subnetName')]"
-                },
-                "subnetID": {
-                  "value": "[variables('subnetID')]"
-                },
-                "nsgName": {
-                  "value": "[variables('nsgName')]"
-                },
-                "baseUrl": {
-                  "value": "[variables('baseUri')]"
-                },
-                "mrsdbuser": {
-                  "value": "[parameters('mrsdbuser')]"
-                },
-                "mrsdbpwd": {
-                  "value": "[parameters('mrsdbpwd')]"
-                },
-                "refdatadbuser": {
-                  "value": "[parameters('refdatadbuser')]"
-                },
-                "refdatadbpwd": {
-                  "value": "[parameters('refdatadbpwd')]"
-                },
-                "profiledbuser": {
-                  "value": "[parameters('profiledbuser')]"
-                },
-                "profiledbpwd": {
-                  "value": "[parameters('profiledbpwd')]"
-                },
-                "informaticaTags": {
-                  "value": "[parameters('informaticaTags')]"
-                }
-              }
-            }
-        },
-        {
-            "name": "nodesSetup",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
-            "dependsOn": [
-                "Microsoft.Resources/deployments/databaseSetup"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('nodeVMUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-              "parameters": {
-                "location": {
-                  "value": "[parameters('location')]"
-                },
-                "storageName": {
-                  "value": "[parameters('storageName')]"
-                },
-                "storageID": {
-                  "value": "[variables('storageID')]"
-                },
-                "dbType": {
-                  "value": "[parameters('dbType')]"
-                },
-                "vnetName": {
-                  "value": "[parameters('vnetName')]"
-                },
-                "subnetName": {
-                  "value": "[parameters('subnetName')]"
-                },
-                "subnetId": {
-                  "value": "[variables('subnetID')]"
-                },
-                "nsgName": {
-                  "value": "[variables('nsgName')]"
-                },
-                "dbVMName": {
-                  "value": "[parameters('dbVMName')]"
-                },
-                "dbUser": {
-                  "value": "[parameters('dbUser')]"
-                },
-                "dbPassword": {
-                  "value": "[parameters('dbPassword')]"
-                },
-                "nodeVMSize": {
-                  "value": "[parameters('nodeVMSize')]"
-                },
-                "nodeVMOSType": {
-                  "value": "[parameters('nodeVMOS')]"
-                },
-                "nodeVMAdminUsername": {
-                  "value": "[parameters('nodeVMAdminUsername')]"
-                },
-                "nodeVMAdminPassword": {
-                  "value": "[parameters('nodeVMAdminPassword')]"
-                },
-                "nodeVMAdminSshPublicKey": {
-                  "value": "[parameters('nodeVMAdminSshPublicKey')]"
-                },
-                "nodeVMNamePrefix": {
-                  "value": "[parameters('nodeVMNamePrefix')]"
-                },
-                "infaDomainName": {
-                  "value": "[parameters('infaDomainName')]"
-                },
-                "infaDomainUser": {
-                  "value": "[parameters('infaDomainUser')]"
-                },
-                "infaDomainPassword": {
-                  "value": "[parameters('infaDomainPassword')]"
-                },
-                "infaNodeNamePrefix": {
-                  "value": "[variables('infaNodeNamePrefix')]"
-                },
-                "infaKeyword": {
-                  "value": "[parameters('infaKeyword')]"
-                },
-                "infaDomainLicense": {
-                  "value": "[parameters('infaDomainLicense')]"
-                },
-                "baseUrl": {
-                  "value": "[variables('baseUri')]"
-                },
-                "mrsdbuser": {
-                  "value": "[parameters('mrsdbuser')]"
-                },
-                "mrsdbpwd": {
-                  "value": "[parameters('mrsdbpwd')]"
-                },
-                "refdatadbuser": {
-                  "value": "[parameters('refdatadbuser')]"
-                },
-                "refdatadbpwd": {
-                  "value": "[parameters('refdatadbpwd')]"
-                },
-                "profiledbuser": {
-                  "value": "[parameters('profiledbuser')]"
-                },
-                "profiledbpwd": {
-                  "value": "[parameters('profiledbpwd')]"
-                },
-                "informaticaTags": {
-                  "value": "[parameters('informaticaTags')]"
-                }
-              }
-            }
+          }
         }
+      },
+      {
+        "name": "vnetSetup",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2016-09-01",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('vnetUri')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "vnetName": {
+              "value": "[parameters('vnetName')]"
+            },
+            "vnetAddressPrefix": {
+              "value": "[parameters('vnetAddressPrefix')]"
+            },
+            "subnetName": {
+              "value": "[parameters('subnetName')]"
+            },
+            "subnetPrefix": {
+              "value": "[parameters('subnetPrefix')]"
+            },
+            "existingVnetRG": {
+              "value": "[parameters('existingVnetRG')]"
+            },
+            "informaticaTags": {
+              "value": "[parameters('informaticaTags')]"
+            }
+          }
+        }
+      },
+      {
+        "name": "nsgSetup",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2016-09-01",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('nsgUri')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "nsgName": {
+              "value": "[variables('nsgName')]"
+            },
+            "informaticaTags": {
+              "value": "[parameters('informaticaTags')]"
+            }
+          }
+        }
+      },
+      {
+        "name": "databaseSetup",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2016-09-01",
+        "dependsOn": [
+          "Microsoft.Resources/deployments/storageSetup",
+          "Microsoft.Resources/deployments/vnetSetup",
+          "Microsoft.Resources/deployments/nsgSetup"
+        ],
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('dbUri')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "storageName": {
+              "value": "[parameters('storageName')]"
+            },
+            "dbType": {
+              "value": "[parameters('dbType')]"
+            },
+            "dbVMName": {
+              "value": "[parameters('dbVMName')]"
+            },
+            "dbVMAdminUsername": {
+              "value": "[parameters('dbVMAdminUsername')]"
+            },
+            "dbVMAdminPassword": {
+              "value": "[parameters('dbVMAdminPassword')]"
+            },
+            "dbVMSize": {
+              "value": "[parameters('dbVMSize')]"
+            },
+            "dbUser": {
+              "value": "[parameters('dbUser')]"
+            },
+            "dbPassword": {
+              "value": "[parameters('dbPassword')]"
+            },
+            "dbName": {
+              "value": "[parameters('dbName')]"
+            },
+            "vnetName": {
+              "value": "[parameters('vnetName')]"
+            },
+            "subnetName": {
+              "value": "[parameters('subnetName')]"
+            },
+            "subnetID": {
+              "value": "[variables('subnetID')]"
+            },
+            "nsgName": {
+              "value": "[variables('nsgName')]"
+            },
+            "baseUrl": {
+              "value": "[variables('baseUri')]"
+            },
+            "mrsdbuser": {
+              "value": "[parameters('mrsdbuser')]"
+            },
+            "mrsdbpwd": {
+              "value": "[parameters('mrsdbpwd')]"
+            },
+            "refdatadbuser": {
+              "value": "[parameters('refdatadbuser')]"
+            },
+            "refdatadbpwd": {
+              "value": "[parameters('refdatadbpwd')]"
+            },
+            "profiledbuser": {
+              "value": "[parameters('profiledbuser')]"
+            },
+            "profiledbpwd": {
+              "value": "[parameters('profiledbpwd')]"
+            },
+            "informaticaTags": {
+              "value": "[parameters('informaticaTags')]"
+            }
+          }
+        }
+      },
+      {
+        "name": "nodesSetup",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2016-09-01",
+        "dependsOn": [
+          "Microsoft.Resources/deployments/databaseSetup"
+        ],
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('nodeVMUri')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "location": {
+              "value": "[parameters('location')]"
+            },
+            "storageName": {
+              "value": "[parameters('storageName')]"
+            },
+            "storageID": {
+              "value": "[variables('storageID')]"
+            },
+            "dbType": {
+              "value": "[parameters('dbType')]"
+            },
+            "vnetName": {
+              "value": "[parameters('vnetName')]"
+            },
+            "subnetName": {
+              "value": "[parameters('subnetName')]"
+            },
+            "subnetId": {
+              "value": "[variables('subnetID')]"
+            },
+            "nsgName": {
+              "value": "[variables('nsgName')]"
+            },
+            "dbVMName": {
+              "value": "[parameters('dbVMName')]"
+            },
+            "dbUser": {
+              "value": "[parameters('dbUser')]"
+            },
+            "dbPassword": {
+              "value": "[parameters('dbPassword')]"
+            },
+            "dbName": {
+              "value": "[parameters('dbName')]"
+            },
+            "nodeVMSize": {
+              "value": "[parameters('nodeVMSize')]"
+            },
+            "nodeVMOSType": {
+              "value": "[parameters('nodeVMOS')]"
+            },
+            "nodeVMAdminUsername": {
+              "value": "[parameters('nodeVMAdminUsername')]"
+            },
+            "nodeVMAdminPassword": {
+              "value": "[parameters('nodeVMAdminPassword')]"
+            },
+            "nodeVMAdminSshPublicKey": {
+              "value": "[parameters('nodeVMAdminSshPublicKey')]"
+            },
+            "nodeVMNamePrefix": {
+              "value": "[parameters('nodeVMNamePrefix')]"
+            },
+            "infaDomainName": {
+              "value": "[parameters('infaDomainName')]"
+            },
+            "infaDomainUser": {
+              "value": "[parameters('infaDomainUser')]"
+            },
+            "infaDomainPassword": {
+              "value": "[parameters('infaDomainPassword')]"
+            },
+            "infaNodeNamePrefix": {
+              "value": "[variables('infaNodeNamePrefix')]"
+            },
+            "infaKeyword": {
+              "value": "[parameters('infaKeyword')]"
+            },
+            "infaDomainLicense": {
+              "value": "[parameters('infaDomainLicense')]"
+            },
+            "baseUrl": {
+              "value": "[variables('baseUri')]"
+            },
+            "mrsdbuser": {
+              "value": "[parameters('mrsdbuser')]"
+            },
+            "mrsdbpwd": {
+              "value": "[parameters('mrsdbpwd')]"
+            },
+            "refdatadbuser": {
+              "value": "[parameters('refdatadbuser')]"
+            },
+            "refdatadbpwd": {
+              "value": "[parameters('refdatadbpwd')]"
+            },
+            "profiledbuser": {
+              "value": "[parameters('profiledbuser')]"
+            },
+            "profiledbpwd": {
+              "value": "[parameters('profiledbpwd')]"
+            },
+            "informaticaTags": {
+              "value": "[parameters('informaticaTags')]"
+            }
+          }
+        }
+      }
     ],
     "outputs": {
     }
-}
+  }
