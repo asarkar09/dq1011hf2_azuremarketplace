@@ -1,4 +1,4 @@
-﻿{
+{
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
   "parameters": {
@@ -81,10 +81,12 @@
     "dbType": {
       "type": "string",
       "allowedValues": [
-        "sqlserver"
+        "sqlserver2014",
+        "sqlserver2016"
       ],
+      "defaultValue": "sqlserver2016",
       "metadata": {
-        "description": "Database type. Only SQL Server 2014 on VM is supported for now"
+        "description": "Database type. Only SQL Server 2014 and 2016 on VM is supported for now"
       }
     },
     "dbVMName": {
