@@ -100,10 +100,10 @@ function createDatabase {
 		$databaseSetting = "ALTER DATABASE " + $dbName + " SET READ_COMMITTED_SNAPSHOT ON" 
 
 		writeLog "Creating database: $dbName"
-		executeStatement $newDatabase master
+		executeSQLStatement $newDatabase master
 
 		writeLog "Setting database READ_COMMITTED_SNAPSHOT to ON"
-		executeStatement $databaseSetting $dbName
+		executeSQLStatement $databaseSetting $dbName
 	}
 
 $error.clear()
