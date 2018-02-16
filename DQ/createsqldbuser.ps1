@@ -61,7 +61,7 @@ Param([string] $dbName)
 }
 
 function executeSQLStatement {
-    Param([String] $sqlStatement,, [string] $dbName)
+    Param([String] $sqlStatement,[string] $dbName)
 
     $errorFlag = 1
     $tryCount = 0
@@ -176,3 +176,4 @@ executeSQLStatement $newProfileLogin $dbName
 executeSQLStatement $newProfileUser $dbName
 executeSQLStatement $updateProfileUserRole $dbName
 executeSQLStatement $newProfileSchema $dbName
+}
