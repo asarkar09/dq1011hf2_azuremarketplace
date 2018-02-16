@@ -1,6 +1,6 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
       "type": "string"
@@ -23,6 +23,9 @@
     "nsgName": {
       "type": "string"
     },
+    "dbType": {
+      "type": "string"
+    },
     "dbVMName": {
       "type": "string"
     },
@@ -31,6 +34,9 @@
     },
     "dbPassword": {
       "type": "securestring"
+    },
+    "dbName": {
+      "type": "string"
     },
     "nodeVMSize": {
       "type": "string"
@@ -111,161 +117,180 @@
     "sshKeyPath": "[concat('/home/',parameters('nodeVMAdminUsername'),'/.ssh/authorized_keys')]",
 
     "infaNodePort": 6005,
-    "dbType": "MSSQLSERVER",
-    "dbInstanceName": "infadb",
+    //  "dbType": "MSSQLSERVER",
+    //  "dbInstanceName": "infadb",
     "dbPort": "1433",
 
     "imagePublisher": "informatica",
     "imageOffer": "data_quality_10_1_1_rhel_7_3_byol-preview",
     "osVersion": "byol_rhel_7_3_data_quality_10_1_1"
   },
-    "resources": [
-        {
-            "name": "[variables('nodeVMDNSName')]",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "location": "[parameters('location')]",
-            "apiVersion": "2016-10-01",
-            "dependsOn": [ ],
+  "resources": [
+    {
+      "name": "[variables('nodeVMDNSName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-10-01",
+      "dependsOn": [],
 
-            "tags": {
-                "displayName": "publicip",
-                "provider": "[toUpper(parameters('informaticaTags').provider)]"
-            },
+      "tags": {
+        "displayName": "publicip",
+        "provider": "[toUpper(parameters('informaticaTags').provider)]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('nodeVMDNSName')]"
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('nodeVMNicPrefix'), add(variables('index'), 1))]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-10-01",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('nodeVMDNSName'))]"
+      ],
+      "tags": {
+        "displayName": "niccard",
+        "provider": "[toUpper(parameters('informaticaTags').provider)]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
             "properties": {
-                "publicIPAllocationMethod": "Dynamic",
-                "dnsSettings": {
-                    "domainNameLabel": "[variables('nodeVMDNSName')]"
-                }
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('nodeVMDNSName'))]"
+              }
             }
-        },
-        {
-            "name": "[concat(variables('nodeVMNicPrefix'), add(variables('index'), 1))]",
-            "type": "Microsoft.Network/networkInterfaces",
-            "location": "[parameters('location')]",
-            "apiVersion": "2016-10-01",
-            "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('nodeVMDNSName'))]"
-            ],
-            "tags": {
-                "displayName": "niccard",
-                "provider": "[toUpper(parameters('informaticaTags').provider)]"
-            },
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[parameters('subnetId')]"
-                            },
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('nodeVMDNSName'))]"
-                            }
-                        }
-                    }
-                ],
-                "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
-                }
-            }
-        },
-      {
-        "name": "[concat(parameters('nodeVMNamePrefix'), add(variables('index'), 1))]",
-        "type": "Microsoft.Compute/virtualMachines",
-        "location": "[parameters('location')]",
-        "apiVersion": "2016-03-30",
-
-        "dependsOn": [
-          "[concat('Microsoft.Network/networkInterfaces/', variables('nodeVMNicPrefix'), add(variables('index'), 1))]"
+          }
         ],
-        "tags": {
-          "displayName": "nodevm",
-          "provider": "[toUpper(parameters('informaticaTags').provider)]"
-        },
-        "plan": {
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('nodeVMNamePrefix'), add(variables('index'), 1))]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-03-30",
+
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nodeVMNicPrefix'), add(variables('index'), 1))]"
+      ],
+      "tags": {
+        "displayName": "nodevm",
+        "provider": "[toUpper(parameters('informaticaTags').provider)]"
+      },
+      /*    "plan": {
                 "name": "[variables('osVersion')]",
                 "publisher": "[variables('imagePublisher')]",
                 "product": "[variables('imageOffer')]"
+        }, */
+      "plan": {
+        "name": "byol_rhel_7_3_platform_10_1_1",
+        "publisher": "informatica",
+        "product": "platform_10_1_1_multi_node_domain_rhel-7-3_byol-preview"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('nodeVMSize')]"
         },
-        "properties": {
-          "hardwareProfile": {
-            "vmSize": "[parameters('nodeVMSize')]"
-          },
-          "osProfile": {
-            "computerName": "[concat(parameters('nodeVMNamePrefix'), add(variables('Index'), 1))]",
-            "adminUsername": "[parameters('nodeVMAdminUsername')]",
-            "linuxConfiguration": {
-              "disablePasswordAuthentication": "true",
-              "ssh": {
-                "publicKeys": [
-                  {
-                    "path": "[variables('sshKeyPath')]",
-                    "keyData": "[parameters('nodeVMAdminSshPublicKey')]"
-                  }
-                ]
-              }
+        "osProfile": {
+          "computerName": "[concat(parameters('nodeVMNamePrefix'), add(variables('Index'), 1))]",
+          "adminUsername": "[parameters('nodeVMAdminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('nodeVMAdminSshPublicKey')]"
+                }
+              ]
             }
-          },
-          "storageProfile": {
-                    "imageReference": {
-                        "publisher": "[variables('imagePublisher')]",
-                        "offer": "[variables('imageOffer')]",
-                        "sku": "[variables('osVersion')]",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "name": "InfaOSDisk",
-                        "caching": "ReadWrite",
-                        "createOption": "FromImage",
-                      "vhd": {
-                        "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/vhds/', toLower(parameters('nodeVMNamePrefix')), uniqueString(resourceGroup().id, deployment().name), '.osdisk.vhd')]"
-                      }
-                    }
-          },
-          "networkProfile": {
-            "networkInterfaces": [
-              {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nodeVMNicPrefix'), add(variables('index'), 1)))]"
-              }
-            ]
           }
         },
-        "resources": [
-          {
-            "name": "ScriptExtGVM",
-            "type": "extensions",
-            "location": "[parameters('location')]",
-            "apiVersion": "2016-03-30",
-            "dependsOn": [
-              "[concat('Microsoft.Compute/virtualMachines/', parameters('nodeVMNamePrefix'), add(variables('index'), 1))]"
-            ],
-            "tags": {
-              "displayName": "informaticaextension",
-              "provider": "[toUpper(parameters('informaticaTags').provider)]"
+        /*      "storageProfile": {
+            "imageReference": {
+              "publisher": "[variables('imagePublisher')]",
+              "offer": "[variables('imageOffer')]",
+              "sku": "[variables('osVersion')]",
+              "version": "latest"
             },
-            "properties": {
-              "publisher": "Microsoft.OSTCExtensions",
-              "type": "CustomScriptForLinux",
-              "typeHandlerVersion": "1.5",
-              "autoUpgradeMinorVersion": true,
-              "settings": {
-                "fileUris": [
-                  "[concat(variables('extScriptURI'),  variables('extScriptFile'))]"
-                ]
-              },
-              "protectedSettings": {
-                "commandToExecute": "[concat('sudo sh ', variables('extScriptFile'), ' ', concat(parameters('nodeVMNamePrefix'), '1'), ' ', parameters('infaDomainName'), ' \"', parameters('infaDomainUser'), '\" \"', parameters('infaDomainPassword'), '\" ', parameters('infaNodeNamePrefix'), add(variables('index'), 1), ' ', variables('infaNodePort'), ' ', variables('dbType'), ' ', variables('dbInstanceName'), ' \"', parameters('dbUser'), '\" \"', parameters('dbPassword'), '\" ', parameters('dbVMName'), ' ', variables('dbPort'), ' \"', parameters('infaKeyword'), '\" ', variables('index'), ' \"', parameters('nodeVMAdminUsername'), '\" \"', parameters('storageName'), '\" ', listKeys(parameters('storageID'), '2016-01-01').keys[0].value, ' \"', parameters('infaDomainLicense'), '\" \"',parameters('mrsdbuser'),'\" \"',parameters('mrsdbpwd'),'\" \"',parameters('refdatadbuser'),'\" \"',parameters('refdatadbpwd'),'\" \"',parameters('profiledbuser'),'\" \"',parameters('profiledbpwd'),'\"')]"
+            "osDisk": {
+              "name": "InfaOSDisk",
+              "caching": "ReadWrite",
+              "createOption": "FromImage",
+              "vhd": {
+                "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/vhds/', toLower(parameters('nodeVMNamePrefix')), uniqueString(resourceGroup().id, deployment().name), '.osdisk.vhd')]"
               }
             }
+          }, */
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Linux",
+            "name": "DQTemplate-osDisk.4aaf3ac9-d669-4160-ba37-92f0af9c9d8f.vhd",
+            "createOption": "FromImage",
+            "image": {
+              "uri": "https://dqrhel1011hf2disks147.blob.core.windows.net/system/Microsoft.Compute/Images/dq1011hf2rhelcontainer/DQTemplate-osDisk.4aaf3ac9-d669-4160-ba37-92f0af9c9d8f.vhd"
+            },
+            "vhd": {
+              "uri": "https://dqrhel1011hf2disks147.blob.core.windows.net/vmcontainer903d48f4-f818-4f34-9401-976d182d9e20/osDisk.903d48f4-f818-4f34-9401-976d182d9e21.vhd"
+            },
+            "caching": "ReadWrite"
           }
-        ]
-      }
-    ],
-    "outputs": {
-        "fqdn": {
-            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('nodeVMDNSName')), '2016-10-01').dnsSettings.fqdn]",
-            "type": "string"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nodeVMNicPrefix'), add(variables('index'), 1)))]"
+            }
+          ]
         }
+      },
+      "resources": [
+        {
+          "name": "ScriptExtGVM",
+          "type": "extensions",
+          "location": "[parameters('location')]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('nodeVMNamePrefix'), add(variables('index'), 1))]"
+          ],
+          "tags": {
+            "displayName": "informaticaextension",
+            "provider": "[toUpper(parameters('informaticaTags').provider)]"
+          },
+          "properties": {
+            "publisher": "Microsoft.OSTCExtensions",
+            "type": "CustomScriptForLinux",
+            "typeHandlerVersion": "1.5",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(variables('extScriptURI'),  variables('extScriptFile'))]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[concat('sudo sh ', variables('extScriptFile'), ' ', concat(parameters('nodeVMNamePrefix'), '1'), ' ', parameters('infaDomainName'), ' \"', parameters('infaDomainUser'), '\" \"', parameters('infaDomainPassword'), '\" ', parameters('infaNodeNamePrefix'), add(variables('index'), 1), ' ', variables('infaNodePort'), ' ', parameters('dbType'), ' ', parameters('dbName'), ' \"', parameters('dbUser'), '\" \"', parameters('dbPassword'), '\" ', parameters('dbVMName'), ' ', variables('dbPort'), ' \"', parameters('infaKeyword'), '\" ', variables('index'), ' \"', parameters('nodeVMAdminUsername'), '\" \"', parameters('storageName'), '\" ', listKeys(parameters('storageID'), '2016-01-01').keys[0].value, ' \"', parameters('infaDomainLicense'), '\" \"',parameters('mrsdbuser'),'\" \"',parameters('mrsdbpwd'),'\" \"',parameters('refdatadbuser'),'\" \"',parameters('refdatadbpwd'),'\" \"',parameters('profiledbuser'),'\" \"',parameters('profiledbpwd'),'\"')]"
+            }
+          }
+        }
+      ]
     }
+  ],
+  "outputs": {
+    "fqdn": {
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('nodeVMDNSName')), '2016-10-01').dnsSettings.fqdn]",
+      "type": "string"
+    }
+  }
 }
