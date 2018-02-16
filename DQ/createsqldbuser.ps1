@@ -32,7 +32,7 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 function writeLog {
     Param([string] $log)
     $dateAndTime = Get-Date
-    "$dateAndTime : $log" | Out-File -Append C:\Informatica\Archive\scripts\createdbusers.log
+    "$dateAndTime : $log" | Out-File -Append C:\Informatica\Archive\logs\createdbusers.log
 }
 
 function waitTillDatabaseIsAlive {
