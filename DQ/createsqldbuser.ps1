@@ -106,6 +106,14 @@ function createDatabase {
 		executeStatement $databaseSetting $dbName
 	}
 
+$error.clear()
+    netsh advfirewall firewall add rule name="Informatica_PC_MSSQL" dir=in action=allow profile=any localport=1433 protocol=TCP
+	
+    mkdir -Path C:\Informatica\Archive\logs 2> $null
+    mkdir -Path C:\SQL_DATA
+
+waitTillDatabaseIsAlive master
+createDatabase $dbName
 	
 writeLog "Creating user: $dbUserName"
 
@@ -116,11 +124,11 @@ $updateUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbUserName + """;"
                         "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbUserName + """"
 $newSchema = "CREATE SCHEMA """ + $dbUserName + """ AUTHORIZATION """ + $dbUserName + """"
 
-waitTillDatabaseIsAlive
-executeSQLStatement $newLogin
-executeSQLStatement $newUser
-executeSQLStatement $updateUserRole
-executeSQLStatement $newSchema
+waitTillDatabaseIsAlive master 
+executeSQLStatement $newLogin $dbName
+executeSQLStatement $newUser $dbName
+executeSQLStatement $updateUserRole $dbName
+executeSQLStatement $newSchema $dbName
 
 
 
@@ -133,11 +141,11 @@ $updateMRSUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbmrsuser + """
                         "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbmrsuser + """"
 $newMRSSchema = "CREATE SCHEMA """ + $dbmrsuser + """ AUTHORIZATION """ + $dbmrsuser + """"
 
-waitTillDatabaseIsAlive
-executeSQLStatement $newMRSLogin
-executeSQLStatement $newMRSUser
-executeSQLStatement $updateMRSUserRole
-executeSQLStatement $newMRSSchema
+waitTillDatabaseIsAlive master 
+executeSQLStatement $newMRSLogin $dbName
+executeSQLStatement $newMRSUser $dbName
+executeSQLStatement $updateMRSUserRole $dbName
+executeSQLStatement $newMRSSchema $dbName
 
 writeLog "Creating user for Reference Data: $dbrefdatauser"
 
@@ -149,10 +157,10 @@ $updateCMSUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbrefdatauser +
 $newCMSSchema = "CREATE SCHEMA """ + $dbrefdatauser + """ AUTHORIZATION """ + $dbrefdatauser +""""
 
 waitTillDatabaseIsAlive
-executeSQLStatement $newCMSLogin
-executeSQLStatement $newCMSUser
-executeSQLStatement $updateCMSUserRole
-executeSQLStatement $newCMSSchema
+executeSQLStatement $newCMSLogin master
+executeSQLStatement $newCMSUser $dbName
+executeSQLStatement $updateCMSUserRole $dbName
+executeSQLStatement $newCMSSchema $dbName
 
 writeLog "Creating user for Profiling: $dbprofileuser"
 
@@ -163,8 +171,8 @@ $updateProfileUserRole = "ALTER ROLE db_datareader ADD MEMBER """ + $dbprofileus
                         "ALTER ROLE db_ddladmin ADD MEMBER """ + $dbprofileuser +""""
 $newProfileSchema = "CREATE SCHEMA """ + $dbprofileuser + """ AUTHORIZATION """ + $dbprofileuser +""""
 
-waitTillDatabaseIsAlive
-executeSQLStatement $newProfileLogin
-executeSQLStatement $newProfileUser
-executeSQLStatement $updateProfileUserRole
-executeSQLStatement $newProfileSchema
+waitTillDatabaseIsAlive master
+executeSQLStatement $newProfileLogin $dbName
+executeSQLStatement $newProfileUser $dbName
+executeSQLStatement $updateProfileUserRole $dbName
+executeSQLStatement $newProfileSchema $dbName
