@@ -77,9 +77,6 @@
     "extScriptURI": "[concat(parameters('baseUrl'), '/')]",
     "extScriptFile": "createsqldbuser.ps1",
 
-    /*    "imagePublisher": "informatica",
-        "imageOffer": "sqlserver-2014-image",
-        "osVersion": "sqlserver-2014-image-for-pc-bdm" */
     "databases": {
       "sqlserver2014": {
         "imagePublisher": "MicrosoftSQLServer",
@@ -157,14 +154,7 @@
         "dependsOn": [
           "[concat('Microsoft.Network/networkInterfaces/', variables('dbVMNicName'))]"
         ],
-     /*   "plan": {
-                "name": "[variables('osVersion')]",
-                "publisher": "[variables('imagePublisher')]",
-                "product": "[variables('imageOffer')]"
-            },  */
-
-       
-        "tags": {
+     "tags": {
           "displayName": "dbvm",
           "provider": "[toUpper(parameters('informaticaTags').provider)]"
         },
@@ -178,12 +168,7 @@
             "adminPassword": "[parameters('dbVMAdminPassword')]"
           },
           "storageProfile": {
-            /*   "imageReference": {
-                        "publisher": "[variables('imagePublisher')]",
-                        "offer": "[variables('imageOffer')]",
-                        "sku": "[variables('osVersion')]",
-                        "version": "latest"
-                    }, */
+          
             "imageReference": {
               "publisher": "[variables('publisher')]",
               "offer": "[variables('offer')]",
