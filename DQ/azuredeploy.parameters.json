@@ -27,7 +27,7 @@
       "value": "Administrator!1"
     },
     "nodeVMOS": {
-      "value": "windows"
+      "value": "linux"
     },
     "nodeVMAdminPassword": {
       "value": "Administrator!1"
@@ -42,16 +42,16 @@
       "value": "DRHVM"
     },
     "infaDomainLicense": {
-      "value": "nolicense"
+      "value": "https://iaasv2tempstoragehk.blob.core.windows.net/vmextensionstemporary-10033fff8d4ba303-20180216103615784/101_AllBits_PC_DQ_7991.key?sv=2015-04-05\u0026sr=c\u0026sig=lr3guWH0syqyoWJQ%2BpAzGpxvGqW3BM1kF4AXjRtDk38%3D\u0026se=2018-02-17T10%3A36%3A15Z\u0026sp=rw"
     },
     "storageName": {
-      "value": "infadq10"
+      "value": "dq1011hf2dq23"
     },
     "nodeVMNamePrefix": {
       "value": "RHVM"
     },
     "baseUrl": {
-      "value": "https://raw.githubusercontent.com/asarkar09/dq1011hf2/master/DQ"
+      "value": "https://raw.githubusercontent.com/asarkar09/dq1011hf2_azuremarketplace/master/DQ"
     },
       "storageExistingOrNew": {
           "value": "new"
@@ -66,7 +66,7 @@
           "value": "dqsubnet"
       },
       "dbType": {
-          "value": "sqlserver"
+          "value": "sqlserver2014"
       },
       "dbVMSize": {
           "value": "Standard_DS11"
@@ -95,9 +95,9 @@
       "infaDomainPassword": {
           "value": "Administrator!1"
       },
-      "mrsdbuser": {
-          "value": "m-rs"
-      },
+    "mrsdbuser": {
+      "value": "mrs-"
+    },
       "mrsdbpwd": {
           "value": "Administrator!1"
       },
@@ -112,6 +112,9 @@
       },
       "profiledbpwd": {
           "value": "Administrator!1"
+      },
+      "dbName": {
+          "value": "dqdatabase"
       }
   }
 }
