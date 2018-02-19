@@ -117,8 +117,6 @@
     "sshKeyPath": "[concat('/home/',parameters('nodeVMAdminUsername'),'/.ssh/authorized_keys')]",
 
     "infaNodePort": 6005,
-    //  "dbType": "MSSQLSERVER",
-    //  "dbInstanceName": "infadb",
     "dbPort": "1433",
 
     "imagePublisher": "informatica",
