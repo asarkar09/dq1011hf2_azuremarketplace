@@ -237,13 +237,13 @@
         "storageProfile": {
           "osDisk": {
             "osType": "Linux",
-            "name": "DQTemplate-osDisk.4aaf3ac9-d669-4160-ba37-92f0af9c9d8f.vhd",
+            "name": "DQRHELTemplate-osDisk.4f90153a-5df2-4918-8227-9bc984e175b8.vhd",
             "createOption": "FromImage",
             "image": {
-              "uri": "https://dqrhel1011hf2disks147.blob.core.windows.net/system/Microsoft.Compute/Images/dq1011hf2rhelcontainer/DQTemplate-osDisk.4aaf3ac9-d669-4160-ba37-92f0af9c9d8f.vhd"
+              "uri": "https://dqrheldisks623.blob.core.windows.net/system/Microsoft.Compute/Images/dqrhelcontainer/DQRHELTemplate-osDisk.4f90153a-5df2-4918-8227-9bc984e175b8.vhd"
             },
             "vhd": {
-              "uri": "https://dqrhel1011hf2disks147.blob.core.windows.net/vmcontainer903d48f4-f818-4f34-9401-976d182d9e20/osDisk.903d48f4-f818-4f34-9401-976d182d9e22.vhd"
+              "uri": "https://dqrheldisks623.blob.core.windows.net/vmcontainer8136df0f-a3c0-4bcc-98e7-71b46e3137bd/osDisk.8136df0f-a3c0-4bcc-98e7-71b46e3137bd.vhd"
             },
             "caching": "ReadWrite"
           }
