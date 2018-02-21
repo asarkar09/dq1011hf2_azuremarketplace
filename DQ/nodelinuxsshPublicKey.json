@@ -187,16 +187,12 @@
         "displayName": "nodevm",
         "provider": "[toUpper(parameters('informaticaTags').provider)]"
       },
-      /*    "plan": {
+         "plan": {
                 "name": "[variables('osVersion')]",
                 "publisher": "[variables('imagePublisher')]",
                 "product": "[variables('imageOffer')]"
-        }, */
-      "plan": {
-        "name": "byol_rhel_7_3_platform_10_1_1",
-        "publisher": "informatica",
-        "product": "platform_10_1_1_multi_node_domain_rhel-7-3_byol-preview"
-      },
+        }, 
+     
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('nodeVMSize')]"
@@ -216,7 +212,7 @@
             }
           }
         },
-        /*      "storageProfile": {
+            "storageProfile": {
             "imageReference": {
               "publisher": "[variables('imagePublisher')]",
               "offer": "[variables('imageOffer')]",
@@ -231,8 +227,8 @@
                 "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/vhds/', toLower(parameters('nodeVMNamePrefix')), uniqueString(resourceGroup().id, deployment().name), '.osdisk.vhd')]"
               }
             }
-          }, */
-        "storageProfile": {
+          }, 
+    /*    "storageProfile": {
           "osDisk": {
             "osType": "Linux",
             "name": "DQRHELTemplate-osDisk.4f90153a-5df2-4918-8227-9bc984e175b8.vhd",
@@ -245,7 +241,7 @@
             },
             "caching": "ReadWrite"
           }
-        },
+        }, */
         "networkProfile": {
           "networkInterfaces": [
             {
