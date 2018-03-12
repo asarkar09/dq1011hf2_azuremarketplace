@@ -23,7 +23,7 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "10.1.1",
+                                    "label": "10.1.1HF2",
                                     "value": "1011"
                                 }
                             ]
