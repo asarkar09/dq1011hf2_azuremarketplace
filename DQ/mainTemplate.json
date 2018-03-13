@@ -158,6 +158,7 @@
     },
     "nodeVMAdminPassword": {
       "type": "securestring",
+      "defaultValue": "",
       "metadata": {
         "description": "Node VM password"
       }
