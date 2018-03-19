@@ -1,609 +1,610 @@
 {
-    "handler": "Microsoft.Compute.MultiVm",
-    "version": "0.1.2-preview",
-    "parameters": {
-        "basics": [
-        ],
-        "steps": [
-            {
-                "label": "Informatica Domain Settings",
-                "name": "infaDomainConfiguration",
-                "subLabel": {
-                    "preValidation": "Configure domain settings",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Informatica Domain Settings",
-                "elements": [
-                    {
-                        "name": "infaVersion",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Informatica Data Quality version",
-                        "defaultValue": "10.1.1",
-                        "toolTip": "Informatica Data Quality product version",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "10.1.1HF2",
-                                    "value": "1011"
-                                }
-                            ]
-                        },
-                        "visible": true
-                    },
-                    {
-                        "name": "infaDomainName",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Informatica domain name",
-                        "defaultValue": "Azure_Domain",
-                        "toolTip": "Specify a name for the Domain",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z0-9A-Z_]{3,30}$",
-                            "validationMessage": "Only alphanumeric characters and underscore are allowed. The value must be 3-30"
-                        }
-                    },
-                    {
-                        "name": "infaDomainUser",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Informatica domain administrator name",
-                        "defaultValue": "Administrator",
-                        "toolTip": "Domain administrator user name",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z0-9A-Z_]{3,30}$",
-                            "validationMessage": "Only alphanumeric characters and underscore are allowed. The value must be 3-30"
-                        }
-                    },
-                    {
-                        "name": "infaDomainPassword",
-                        "type": "Microsoft.Common.PasswordBox",
-                        "label": {
-                            "password": "Informatica domain password",
-                            "confirmPassword": "Confirm Informatica domain password"
-                        },
-                        "constraints": {
-                            "required": true,
-                            "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
-                            "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
-                        },
-                        "options": {
-                            "hideConfirmation": false
-                        }
-
-                    },
-                    {
-                        "name": "infaDomainEncryptionKeyword",
-                        "type": "Microsoft.Common.PasswordBox",
-                        "toolTip": "Keyphrase for generating encryption key for domain",
-                        "label": {
-                            "password": "Keyphrase for encryption key",
-                            "confirmPassword": "Confirm keyphrase for encryption key"
-                        },
-                        "constraints": {
-                            "required": true,
-                            "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,20}$",
-                            "validationMessage": "Keyphrase should contain 8-20 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
-                        },
-                        "options": {
-                            "hideConfirmation": true
-                        }
-                    },
-                    {
-                        "name": "infaDomainLicense",
-                        "type": "Microsoft.Common.FileUpload",
-                        "label": "Informatica license file",
-                        "toolTip": "",
-                        "constraints": {
-                            "required": false,
-                            "accept": ".key"
-                        },
-                        "options": {
-                            "multiple": false,
-                            "uploadMode": "url",
-                            "openMode": "text",
-                            "encoding": "UTF-8"
-                        },
-                        "visible": true
-                    }
-                ]
-            },
-            {
-                "name": "nodeVMConfiguration",
-                "label": "Node Settings",
-                "subLabel": {
-                    "preValidation": "Configure machine settings for the node",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Node Settings",
-                "elements": [
-                    {
-                        "name": "nodeVMOS",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Select the OS for the VM",
-                        "defaultValue": "Windows Server 2012 R2 Datacenter",
-                        "toolTip": "OS platform of the VM.",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "Windows Server 2012 R2 Datacenter",
-                                    "value": "windows"
-                                },
-                                {
-                                    "label": "Red Hat Enterprise Linux 7.3",
-                                    "value": "linux"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "nodeVMPrefix",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Machine prefix",
-                        "defaultValue": "VM",
-                        "toolTip": "Prefix for machine name",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^([a-zA-Z][a-z0-9A-Z\\-]{1,29})$",
-                            "validationMessage": "Host prefix should begin with alphabets. Only alphanumeric characters, and hyphen are allowed. The value must be 2-29 characters long"
-                        }
-                    },
-                    {
-                        "name": "nodeVMAdminUsernameWin",
-                        "type": "Microsoft.Compute.UserNameTextBox",
-                        "label": "VM Username",
-                        "toolTip": "Admin username for the virtual machines.",
-                        "osPlatform": "Windows",
-                        "constraints": {
-                            "required": true
-                        },
-                        "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'windows')]"
-                    },
-                    {
-                        "name": "nodeVMAdminUsernameLin",
-                        "type": "Microsoft.Compute.UserNameTextBox",
-                        "label": "VM Username",
-                        "toolTip": "Admin username for the virtual machines.",
-                        "osPlatform": "Linux",
-                        "constraints": {
-                            "required": true
-                        },
-                        "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'linux')]"
-                    },
-                    {
-                        "name": "nodeVMAdminPasswordWin",
-                        "type": "Microsoft.Compute.CredentialsCombo",
-                        "label": {
-                            "password": "Password",
-                            "confirmPassword": "Confirm password"
-                        },
-                        "toolTip": {
-                            "password": ""
-                        },
-                        "constraints": {
-                            "required": true
-                        },
-                        "options": {
-                            "hideConfirmation": false
-                        },
-                        "osPlatform": "Windows",
-                        "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'windows')]"
-                    },
-                    {
-                        "name": "nodeVMAdminPasswordLin",
-                        "type": "Microsoft.Compute.CredentialsCombo",
-                        "label": {
-                            "authenticationType": "Authentication type",
-                            "password": "Password",
-                            "confirmPassword": "Confirm password",
-                            "sshPublicKey": "SSH public key"
-                        },
-                        "toolTip": {
-                            "authenticationType": "",
-                            "password": "",
-                            "sshPublicKey": ""
-                        },
-                        "constraints": {
-                            "required": true
-                        },
-                        "options": {
-                            "hideConfirmation": false,
-                            "hidePassword": false
-                        },
-                        "osPlatform": "Linux",
-                        "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'linux')]"
-                    },
-                    {
-                        "name": "nodeVMSizeWin",
-                        "type": "Microsoft.Compute.SizeSelector",
-                        "label": "Machine size",
-                        "toolTip": "The size of the machine",
-                        "recommendedSizes": [
-                            "Standard_DS11",
-                            "Standard_DS11_v2",
-                            "Standard_DS2",
-                            "Standard_DS2_v2"
-                        ],
-                        "osPlatform": "Windows",
-                        "imageReference": {
-                            "publisher": "informatica",
-                        "offer": "dataquality_10_1_1_windows_byol",
-                        "sku": "byol_windows_dataquality_10_1_1"
-                        },
-                        "count": 1,
-                        "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'windows')]"
-                    },
-                    {
-                        "name": "nodeVMSizeLin",
-                        "type": "Microsoft.Compute.SizeSelector",
-                        "label": "Machine size",
-                        "toolTip": "The size of the machine",
-                        "recommendedSizes": [
-                            "Standard_DS11",
-                            "Standard_DS11_v2",
-                            "Standard_DS2",
-                            "Standard_DS2_v2"
-                        ],
-                        "osPlatform": "Linux",
-                        "imageReference": {
-                            "publisher": "informatica",
-                        "offer": "data_quality_10_1_1_rhel_7_3_byol",
-                        "sku": "byol_rhel_7_3_data_quality_10_1_1"
-                        },
-                        "count": 1,
-                        "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'linux')]"
-                    }
-                ]
-            },
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Compute.MultiVm",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+    ],
+    "steps": [
+      {
+        "label": "Informatica Domain Settings",
+        "name": "infaDomainConfiguration",
+        "subLabel": {
+          "preValidation": "Configure domain settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Informatica Domain Settings",
+        "elements": [
           {
-            "name": "databaseConfiguration",
-            "label": "Database Settings",
-            "subLabel": {
-              "preValidation": "Configure database settings",
-              "postValidation": "Done"
+            "name": "infaVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Informatica Data Quality version",
+            "defaultValue": "10.1.1",
+            "toolTip": "Informatica Data Quality product version",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "10.1.1HF2",
+                  "value": "1011"
+                }
+              ]
             },
-            "bladeTitle": "Database Settings",
-            "elements": [
-              {
-                "name": "databaseconfig",
-                "type": "Microsoft.Common.Section",
-                "label": "Database configuration",
-                "elements": [
-                  {
-                    "name": "databaseType",
-                    "type": "Microsoft.Common.DropDown",
-                    "label": "Database type",
-                    "defaultValue": "SQL Server 2014",
-                    "toolTip": "",
-                    "constraints": {
-                      "allowedValues": [
-                        {
-                          "label": "SQL Server 2014",
-                          "value": "sqlserver2014"
-                        },
-                        {
-                          "label": "SQL Server 2016",
-                          "value": "sqlserver2016"
-                        }
-                      ]
-                    },
-                    "visible": true
-                  },
-                  {
-                    "name": "databaseHostName",
-                    "type": "Microsoft.Common.TextBox",
-                    "label": "Database machine name",
-                    "defaultValue": "DVM",
-                    "constraints": {
-                      "required": true,
-                      "regex": "^([a-zA-Z][a-z0-9A-Z\\-]{2,30})$",
-                      "validationMessage": "Only alphanumeric characters, and hyphen are allowed. The value must be 3-30 characters long"
-                    }
-                  },
-                  {
-                    "name": "dbVMAdminUsername",
-                    "type": "Microsoft.Compute.UserNameTextBox",
-                    "label": "Username",
-                    "toolTip": "Admin username for the machines",
-                    "osPlatform": "Windows",
-                    "constraints": {
-                      "required": true
-                    }
-                  },
-                  {
-                    "name": "dbVMAdminPassword",
-                    "type": "Microsoft.Compute.CredentialsCombo",
-                    "label": {
-                      "password": "Password",
-                      "confirmPassword": "Confirm password"
-                    },
-                    "toolTip": {
-                      "password": "Admin password for the machines"
-                    },
-                    "osPlatform": "Windows",
-                    "constraints": {
-                      "required": true
-                    }
-                  },
-                  {
-                    "name": "databaseName",
-                    "type": "Microsoft.Common.TextBox",
-                    "label": "Database name",
-                    "defaultValue": "infadb",
-                    "toolTip": "Name for the database",
-                    "constraints": {
-                      "required": true,
-                      "regex": "^([a-zA-Z][a-z0-9A-Z]{2,30})$",
-                      "validationMessage": "Only alphanumeric characters are allowed. The value must be 3-30 characters long"
-                    }
-                  },
-                  {
-                    "name": "databaseVMSize",
-                    "type": "Microsoft.Compute.SizeSelector",
-                    "label": "Database  machine size",
-                    "toolTip": "The size of machine for database",
-                    "recommendedSizes": [
-                      "Standard_DS3",
-                      "Standard_DS3_v2",
-                      "Standard_DS4",
-                      "Standard_DS4_v2"
-                    ],
-                    "osPlatform": "Windows",
-                    "imageReference": {
-                      "publisher": "MicrosoftSQLServer",
-                      "offer": "SQL2014SP2-WS2012R2",
-                      "sku": "Enterprise"
-                    },
-                    "count": 1
-                  }
-                ]
-              },
-              {
-                "name": "databaseuser",
-                "type": "Microsoft.Common.Section",
-                "label": "Informatica Domain Database User",
-                "elements": [
-                  {
-                    "name": "infaDomainDBUser",
-                    "type": "Microsoft.Common.TextBox",
-                    "label": "Informatica Domain Database username",
-                    "defaultValue": "",
-                    "toolTip": "Database user to be created for communication between Domain and Database",
-                    "constraints": {
-                      "required": true,
-                      "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
-                      "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
-                    }
-                  },
-                  {
-                    "name": "infaDomainDBPassword",
-                    "type": "Microsoft.Common.PasswordBox",
-                    "label": {
-                      "password": "Informatica Domain Database password",
-                      "confirmPassword": "Confirm Informatica Domain Database password"
-                    },
-                    "constraints": {
-                      "required": true,
-                      "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
-                      "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
-                    },
-                    "options": {
-                      "hideConfirmation": false
-                    }
-                  }
-                ]
-              }
-            ]
+            "visible": true
           },
           {
-            "name": "dqConfig",
-            "label": "Informatica Data Quality Services",
-            "subLabel": {
-              "preValidation": "Configure Informatica Data Quality Services",
-              "postValidation": "Done"
-            },
-            "bladeTitle": "Informatica Data Quality Services",
-            "elements": [
-              {
-                "name": "mrsdbconfig",
-                "type": "Microsoft.Common.Section",
-                "label": "Model Repository Configuration",
-                "elements": [
-                  {
-                    "name": "mrsDBuser",
-                    "type": "Microsoft.Common.TextBox",
-                    "label": "Database Username",
-                    "defaultValue": "",
-                    "toolTip": "Database user to be created for Model Repository Service",
-                    "constraints": {
-                      "required": true,
-                      "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
-                      "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
-                    }
-                  },
-                  {
-                    "name": "mrsDBpassword",
-                    "type": "Microsoft.Common.PasswordBox",
-                    "label": {
-                      "password": "Database Password",
-                      "confirmPassword": "Confirm Database Password"
-                    },
-                    "constraints": {
-                      "required": true,
-                      "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
-                      "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
-                    },
-                    "options": {
-                      "hideConfirmation": false
-                    }
-                  }
-                ]
-              },
-              {
-                "name": "cmsdbconfig",
-                "type": "Microsoft.Common.Section",
-                "label": "Reference Data Configuration",
-                "elements": [
-                  {
-                    "name": "refDataDBuser",
-                    "type": "Microsoft.Common.TextBox",
-                    "label": "Database Username",
-                    "defaultValue": "",
-                    "toolTip": "Database user to be created for Reference Data",
-                    "constraints": {
-                      "required": true,
-                      "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
-                      "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
-                    }
-                  },
-                  {
-                    "name": "refDataDBpassword",
-                    "type": "Microsoft.Common.PasswordBox",
-                    "label": {
-                      "password": "Database Password",
-                      "confirmPassword": "Confirm Database Password"
-                    },
-                    "constraints": {
-                      "required": true,
-                      "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
-                      "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
-                    },
-                    "options": {
-                      "hideConfirmation": false
-                    }
-                  }
-                ]
-              },
-              {
-                "name": "profiledbconfig",
-                "type": "Microsoft.Common.Section",
-                "label": "Profiling Warehouse Configuration",
-                "elements": [
-                  {
-                    "name": "profileDBuser",
-                    "type": "Microsoft.Common.TextBox",
-                    "label": "Database Username",
-                    "defaultValue": "",
-                    "toolTip": "Database user to be created for Profiling Warehouse",
-                    "constraints": {
-                      "required": true,
-                      "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
-                      "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
-                    }
-                  },
-                  {
-                    "name": "profileDBpassword",
-                    "type": "Microsoft.Common.PasswordBox",
-                    "label": {
-                      "password": "Database Password",
-                      "confirmPassword": "Confirm Database Password"
-                    },
-                    "constraints": {
-                      "required": true,
-                      "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
-                      "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
-                    },
-                    "options": {
-                      "hideConfirmation": false
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-            {
-                "name": "infraConfiguration",
-                "label": "Infrastructure Settings",
-                "subLabel": {
-                    "preValidation": "Configure Storage and VNET settings",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Infrastructure Settings",
-                "elements": [
-                    {
-                        "name": "storageAccount",
-                        "type": "Microsoft.Storage.StorageAccountSelector",
-                        "label": "Storage account",
-                        "toolTip": "Storage account used for the machines",
-                        "defaultValue": {
-                            "type": "Standard_LRS"
-                        }
-                    },
-                    {
-                        "name": "infavnet",
-                        "type": "Microsoft.Network.VirtualNetworkCombo",
-                        "label": {
-                            "virtualNetwork": "Virtual network",
-                            "subnets": "Subnets"
-                        },
-                        "toolTip": {
-                            "virtualNetwork": "Virtual network all resource required to be part of",
-                            "subnets": ""
-                        },
-                        "defaultValue": {
-                            "name": "InfaVNET",
-                            "addressPrefixSize": "/16"
-                        },
-                        "constraints": {
-                            "minAddressPrefixSize": "/30"
-                        },
-                        "subnets": {
-                            "subnet1": {
-                                "label": "Subnet",
-                                "defaultValue": {
-                                    "name": "InfaSubnet",
-                                    "addressPrefixSize": "/24"
-                                },
-                                "constraints": {
-                                    "minAddressPrefixSize": "/30",
-                                    "minAddressCount": "[add(1, 1)]",
-                                    "requireContiguousAddresses": true
-                                }
-                            }
-                        }
-                    }
-                ]
+            "name": "infaDomainName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Informatica domain name",
+            "defaultValue": "Azure_Domain",
+            "toolTip": "Specify a name for the Domain",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z_]{3,30}$",
+              "validationMessage": "Only alphanumeric characters and underscore are allowed. The value must be 3-30"
             }
-        ],
+          },
+          {
+            "name": "infaDomainUser",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Informatica domain administrator name",
+            "defaultValue": "Administrator",
+            "toolTip": "Domain administrator user name",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9A-Z_]{3,30}$",
+              "validationMessage": "Only alphanumeric characters and underscore are allowed. The value must be 3-30"
+            }
+          },
+          {
+            "name": "infaDomainPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Informatica domain password",
+              "confirmPassword": "Confirm Informatica domain password"
+            },
+            "constraints": {
+              "required": true,
+              "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
+              "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
+            },
+            "options": {
+              "hideConfirmation": false
+            }
 
-      "outputs": {
-        "location": "[location()]",
-        "nodeVMNamePrefix": "[steps('nodeVMConfiguration').nodeVMPrefix]",
-        "nodeVMAuthType": "[coalesce(steps('nodeVMConfiguration').nodeVMAdminPasswordWin.authenticationType, steps('nodeVMConfiguration').nodeVMAdminPasswordLin.authenticationType)]",
-        "nodeVMAdminUsername": "[coalesce(steps('nodeVMConfiguration').nodeVMAdminUsernameWin, steps('nodeVMConfiguration').nodeVMAdminUsernameLin)]",
-        "nodeVMAdminPassword": "[coalesce(steps('nodeVMConfiguration').nodeVMAdminPasswordWin.password, steps('nodeVMConfiguration').nodeVMAdminPasswordLin.password)]",
-        "nodeVMAdminSshPublicKey": "[steps('nodeVMConfiguration').nodeVMAdminPasswordLin.sshPublicKey]",
-        "nodeVMSize": "[coalesce(steps('nodeVMConfiguration').nodeVMSizeWin, steps('nodeVMConfiguration').nodeVMSizeLin)]",
-        "nodeVMOS": "[steps('nodeVMConfiguration').nodeVMOS]",
-        "infaVersion": "[steps('infaDomainConfiguration').infaVersion]",
-        "infaDomainName": "[steps('infaDomainConfiguration').infaDomainName]",
-        "infaDomainUser": "[steps('infaDomainConfiguration').infaDomainUser]",
-        "infaDomainPassword": "[steps('infaDomainConfiguration').infaDomainPassword]",
-        "infaDomainLicense": "[steps('infaDomainConfiguration').infaDomainLicense]",
-        "infaKeyword": "[steps('infaDomainConfiguration').infaDomainEncryptionKeyword]",
-        "dbVMName": "[steps('databaseConfiguration').databaseconfig.databaseHostName]",
-        "dbVMSize": "[steps('databaseConfiguration').databaseconfig.databaseVMSize]",
-        "dbType": "[steps('databaseConfiguration').databaseconfig.databaseType]",
-        "dbName": "[steps('databaseConfiguration').databaseconfig.databaseName]",
-        "dbVMAdminUsername": "[steps('databaseConfiguration').databaseconfig.dbVMAdminUsername]",
-        "dbVMAdminPassword": "[steps('databaseConfiguration').databaseconfig.dbVMAdminPassword.password]",
-        "dbUser": "[steps('databaseConfiguration').databaseuser.infaDomainDBUser]",
-        "dbPassword": "[steps('databaseConfiguration').databaseuser.infaDomainDBPassword]",
-        "mrsdbuser": "[steps('dqConfig').mrsdbconfig.mrsDBuser]",
-        "mrsdbpwd": "[steps('dqConfig').mrsdbconfig.mrsDBpassword]",
-        "refdatadbuser": "[steps('dqConfig').cmsdbconfig.refDataDBuser]",
-        "refdatadbpwd": "[steps('dqConfig').cmsdbconfig.refDataDBpassword]",
-        "profiledbuser": "[steps('dqConfig').profiledbconfig.profileDBuser]",
-        "profiledbpwd": "[steps('dqConfig').profiledbconfig.profileDBpassword]",
-        "storageName": "[steps('infraConfiguration').storageAccount.name]",
-        "storageType": "[steps('infraConfiguration').storageAccount.type]",
-        "storageExistingOrNew": "[steps('infraConfiguration').storageAccount.newOrExisting]",
-        "existingStorageRG": "[steps('infraConfiguration').storageAccount.resourceGroup]",
-        "vnetName": "[steps('infraConfiguration').infavnet.name]",
-        "vnetAddressPrefix": "[steps('infraConfiguration').infavnet.addressPrefix]",
-        "vnetExistingOrNew": "[steps('infraConfiguration').infavnet.newOrExisting]",
-        "existingVnetRG": "[steps('infraConfiguration').infavnet.resourceGroup]",
-        "subnetName": "[steps('infraConfiguration').infavnet.subnets.subnet1.name]",
-        "subnetPrefix": "[steps('infraConfiguration').infavnet.subnets.subnet1.addressPrefix]"
+          },
+          {
+            "name": "infaDomainEncryptionKeyword",
+            "type": "Microsoft.Common.PasswordBox",
+            "toolTip": "Keyphrase for generating encryption key for domain",
+            "label": {
+              "password": "Keyphrase for encryption key",
+              "confirmPassword": "Confirm keyphrase for encryption key"
+            },
+            "constraints": {
+              "required": true,
+              "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,20}$",
+              "validationMessage": "Keyphrase should contain 8-20 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
+            },
+            "options": {
+              "hideConfirmation": true
+            }
+          },
+          {
+            "name": "infaDomainLicense",
+            "type": "Microsoft.Common.FileUpload",
+            "label": "Informatica license file",
+            "toolTip": "",
+            "constraints": {
+              "required": false,
+              "accept": ".key"
+            },
+            "options": {
+              "multiple": false,
+              "uploadMode": "url",
+              "openMode": "text",
+              "encoding": "UTF-8"
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "nodeVMConfiguration",
+        "label": "Node Settings",
+        "subLabel": {
+          "preValidation": "Configure machine settings for the node",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Node Settings",
+        "elements": [
+          {
+            "name": "nodeVMOS",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Select the OS for the VM",
+            "defaultValue": "Windows Server 2012 R2 Datacenter",
+            "toolTip": "OS platform of the VM.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Windows Server 2012 R2 Datacenter",
+                  "value": "windows"
+                },
+                {
+                  "label": "Red Hat Enterprise Linux 7.3",
+                  "value": "linux"
+                }
+              ]
+            }
+          },
+          {
+            "name": "nodeVMPrefix",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Machine prefix",
+            "defaultValue": "VM",
+            "toolTip": "Prefix for machine name",
+            "constraints": {
+              "required": true,
+              "regex": "^([a-zA-Z][a-z0-9A-Z\\-]{1,29})$",
+              "validationMessage": "Host prefix should begin with alphabets. Only alphanumeric characters, and hyphen are allowed. The value must be 2-29 characters long"
+            }
+          },
+          {
+            "name": "nodeVMAdminUsernameWin",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "VM Username",
+            "toolTip": "Admin username for the virtual machines.",
+            "osPlatform": "Windows",
+            "constraints": {
+              "required": true
+            },
+            "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'windows')]"
+          },
+          {
+            "name": "nodeVMAdminUsernameLin",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "VM Username",
+            "toolTip": "Admin username for the virtual machines.",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true
+            },
+            "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'linux')]"
+          },
+          {
+            "name": "nodeVMAdminPasswordWin",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": {
+              "password": "Password",
+              "confirmPassword": "Confirm password"
+            },
+            "toolTip": {
+              "password": ""
+            },
+            "constraints": {
+              "required": true
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "osPlatform": "Windows",
+            "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'windows')]"
+          },
+          {
+            "name": "nodeVMAdminPasswordLin",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": {
+              "authenticationType": "Authentication type",
+              "password": "Password",
+              "confirmPassword": "Confirm password",
+              "sshPublicKey": "SSH public key"
+            },
+            "toolTip": {
+              "authenticationType": "",
+              "password": "",
+              "sshPublicKey": ""
+            },
+            "constraints": {
+              "required": true
+            },
+            "options": {
+              "hideConfirmation": false,
+              "hidePassword": false
+            },
+            "osPlatform": "Linux",
+            "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'linux')]"
+          },
+          {
+            "name": "nodeVMSizeWin",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Machine size",
+            "toolTip": "The size of the machine",
+            "recommendedSizes": [
+              "Standard_DS11",
+              "Standard_DS11_v2",
+              "Standard_DS2",
+              "Standard_DS2_v2"
+            ],
+            "osPlatform": "Windows",
+            "imageReference": {
+              "publisher": "informatica",
+              "offer": "dataquality_10_1_1_windows_byol",
+              "sku": "byol_windows_dataquality_10_1_1"
+            },
+            "count": 1,
+            "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'windows')]"
+          },
+          {
+            "name": "nodeVMSizeLin",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Machine size",
+            "toolTip": "The size of the machine",
+            "recommendedSizes": [
+              "Standard_DS11",
+              "Standard_DS11_v2",
+              "Standard_DS2",
+              "Standard_DS2_v2"
+            ],
+            "osPlatform": "Linux",
+            "imageReference": {
+              "publisher": "informatica",
+              "offer": "data_quality_10_1_1_rhel_7_3_byol",
+              "sku": "byol_rhel_7_3_data_quality_10_1_1"
+            },
+            "count": 1,
+            "visible": "[equals(steps('nodeVMConfiguration').nodeVMOS, 'linux')]"
+          }
+        ]
+      },
+      {
+        "name": "databaseConfiguration",
+        "label": "Database Settings",
+        "subLabel": {
+          "preValidation": "Configure database settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Database Settings",
+        "elements": [
+          {
+            "name": "databaseconfig",
+            "type": "Microsoft.Common.Section",
+            "label": "Database configuration",
+            "elements": [
+              {
+                "name": "databaseType",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Database type",
+                "defaultValue": "SQL Server 2014",
+                "toolTip": "",
+                "constraints": {
+                  "allowedValues": [
+                    {
+                      "label": "SQL Server 2014",
+                      "value": "sqlserver2014"
+                    },
+                    {
+                      "label": "SQL Server 2016",
+                      "value": "sqlserver2016"
+                    }
+                  ]
+                },
+                "visible": true
+              },
+              {
+                "name": "databaseHostName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database machine name",
+                "defaultValue": "DVM",
+                "constraints": {
+                  "required": true,
+                  "regex": "^([a-zA-Z][a-z0-9A-Z\\-]{2,30})$",
+                  "validationMessage": "Only alphanumeric characters, and hyphen are allowed. The value must be 3-30 characters long"
+                }
+              },
+              {
+                "name": "dbVMAdminUsername",
+                "type": "Microsoft.Compute.UserNameTextBox",
+                "label": "Username",
+                "toolTip": "Admin username for the machines",
+                "osPlatform": "Windows",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "dbVMAdminPassword",
+                "type": "Microsoft.Compute.CredentialsCombo",
+                "label": {
+                  "password": "Password",
+                  "confirmPassword": "Confirm password"
+                },
+                "toolTip": {
+                  "password": "Admin password for the machines"
+                },
+                "osPlatform": "Windows",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "databaseName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database name",
+                "defaultValue": "infadb",
+                "toolTip": "Name for the database",
+                "constraints": {
+                  "required": true,
+                  "regex": "^([a-zA-Z][a-z0-9A-Z]{2,30})$",
+                  "validationMessage": "Only alphanumeric characters are allowed. The value must be 3-30 characters long"
+                }
+              },
+              {
+                "name": "databaseVMSize",
+                "type": "Microsoft.Compute.SizeSelector",
+                "label": "Database  machine size",
+                "toolTip": "The size of machine for database",
+                "recommendedSizes": [
+                  "Standard_DS3",
+                  "Standard_DS3_v2",
+                  "Standard_DS4",
+                  "Standard_DS4_v2"
+                ],
+                "osPlatform": "Windows",
+                "imageReference": {
+                  "publisher": "MicrosoftSQLServer",
+                  "offer": "SQL2014SP2-WS2012R2",
+                  "sku": "Enterprise"
+                },
+                "count": 1
+              }
+            ]
+          },
+          {
+            "name": "databaseuser",
+            "type": "Microsoft.Common.Section",
+            "label": "Informatica Domain Database User",
+            "elements": [
+              {
+                "name": "infaDomainDBUser",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Informatica Domain Database username",
+                "defaultValue": "",
+                "toolTip": "Database user to be created for communication between Domain and Database",
+                "constraints": {
+                  "required": true,
+                  "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
+                  "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
+                }
+              },
+              {
+                "name": "infaDomainDBPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Informatica Domain Database password",
+                  "confirmPassword": "Confirm Informatica Domain Database password"
+                },
+                "constraints": {
+                  "required": true,
+                  "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
+                  "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "dqConfig",
+        "label": "Informatica Data Quality Services",
+        "subLabel": {
+          "preValidation": "Configure Informatica Data Quality Services",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Informatica Data Quality Services",
+        "elements": [
+          {
+            "name": "mrsdbconfig",
+            "type": "Microsoft.Common.Section",
+            "label": "Model Repository Configuration",
+            "elements": [
+              {
+                "name": "mrsDBuser",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database Username",
+                "defaultValue": "",
+                "toolTip": "Database user to be created for Model Repository Service",
+                "constraints": {
+                  "required": true,
+                  "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
+                  "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
+                }
+              },
+              {
+                "name": "mrsDBpassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Database Password",
+                  "confirmPassword": "Confirm Database Password"
+                },
+                "constraints": {
+                  "required": true,
+                  "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
+                  "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "cmsdbconfig",
+            "type": "Microsoft.Common.Section",
+            "label": "Reference Data Configuration",
+            "elements": [
+              {
+                "name": "refDataDBuser",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database Username",
+                "defaultValue": "",
+                "toolTip": "Database user to be created for Reference Data",
+                "constraints": {
+                  "required": true,
+                  "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
+                  "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
+                }
+              },
+              {
+                "name": "refDataDBpassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Database Password",
+                  "confirmPassword": "Confirm Database Password"
+                },
+                "constraints": {
+                  "required": true,
+                  "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
+                  "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "profiledbconfig",
+            "type": "Microsoft.Common.Section",
+            "label": "Profiling Warehouse Configuration",
+            "elements": [
+              {
+                "name": "profileDBuser",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database Username",
+                "defaultValue": "",
+                "toolTip": "Database user to be created for Profiling Warehouse",
+                "constraints": {
+                  "required": true,
+                  "regex": "(?!^(p|P)(u|U)(b|B)(l|L)(i|I)(c|C)$)(?!^(d|D)(b|B)(o|O)$)(?!^(s|S)(y|Y)(s|S)$)(?!^(g|G)(u|U)(e|E)(s|S)(t|T)$)(^[a-zA-Z][a-zA-Z0-9_-]{2,127}$)",
+                  "validationMessage": "Username must begin with an alphabet, only alphanumeric characters, hyphen and underscore are allowed, and the value must be 3-128 characters in length. Usernames sa, public, dbo, sys, and guest are not allowed"
+                }
+              },
+              {
+                "name": "profileDBpassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Database Password",
+                  "confirmPassword": "Confirm Database Password"
+                },
+                "constraints": {
+                  "required": true,
+                  "regex": "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\s\\w])(?!.*[\"$]).{8,123}$",
+                  "validationMessage": "Password must be at least 8 characters in length. Should contain at least one special character, number, upper-case and lower-case character. Double quote(\") and dollar($) is not allowed"
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "infraConfiguration",
+        "label": "Infrastructure Settings",
+        "subLabel": {
+          "preValidation": "Configure Storage and VNET settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Infrastructure Settings",
+        "elements": [
+          {
+            "name": "storageAccount",
+            "type": "Microsoft.Storage.StorageAccountSelector",
+            "label": "Storage account",
+            "toolTip": "Storage account used for the machines",
+            "defaultValue": {
+              "type": "Standard_LRS"
+            }
+          },
+          {
+            "name": "infavnet",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual network",
+              "subnets": "Subnets"
+            },
+            "toolTip": {
+              "virtualNetwork": "Virtual network all resource required to be part of",
+              "subnets": ""
+            },
+            "defaultValue": {
+              "name": "InfaVNET",
+              "addressPrefixSize": "/16"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/30"
+            },
+            "subnets": {
+              "subnet1": {
+                "label": "Subnet",
+                "defaultValue": {
+                  "name": "InfaSubnet",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/30",
+                  "minAddressCount": "[add(1, 1)]",
+                  "requireContiguousAddresses": true
+                }
+              }
+            }
+          }
+        ]
       }
+    ],
+
+    "outputs": {
+      "location": "[location()]",
+      "nodeVMNamePrefix": "[steps('nodeVMConfiguration').nodeVMPrefix]",
+      "nodeVMAuthType": "[coalesce(steps('nodeVMConfiguration').nodeVMAdminPasswordWin.authenticationType, steps('nodeVMConfiguration').nodeVMAdminPasswordLin.authenticationType)]",
+      "nodeVMAdminUsername": "[coalesce(steps('nodeVMConfiguration').nodeVMAdminUsernameWin, steps('nodeVMConfiguration').nodeVMAdminUsernameLin)]",
+      "nodeVMAdminPassword": "[coalesce(steps('nodeVMConfiguration').nodeVMAdminPasswordWin.password, steps('nodeVMConfiguration').nodeVMAdminPasswordLin.password)]",
+      "nodeVMAdminSshPublicKey": "[steps('nodeVMConfiguration').nodeVMAdminPasswordLin.sshPublicKey]",
+      "nodeVMSize": "[coalesce(steps('nodeVMConfiguration').nodeVMSizeWin, steps('nodeVMConfiguration').nodeVMSizeLin)]",
+      "nodeVMOS": "[steps('nodeVMConfiguration').nodeVMOS]",
+      "infaVersion": "[steps('infaDomainConfiguration').infaVersion]",
+      "infaDomainName": "[steps('infaDomainConfiguration').infaDomainName]",
+      "infaDomainUser": "[steps('infaDomainConfiguration').infaDomainUser]",
+      "infaDomainPassword": "[steps('infaDomainConfiguration').infaDomainPassword]",
+      "infaDomainLicense": "[steps('infaDomainConfiguration').infaDomainLicense]",
+      "infaKeyword": "[steps('infaDomainConfiguration').infaDomainEncryptionKeyword]",
+      "dbVMName": "[steps('databaseConfiguration').databaseconfig.databaseHostName]",
+      "dbVMSize": "[steps('databaseConfiguration').databaseconfig.databaseVMSize]",
+      "dbType": "[steps('databaseConfiguration').databaseconfig.databaseType]",
+      "dbName": "[steps('databaseConfiguration').databaseconfig.databaseName]",
+      "dbVMAdminUsername": "[steps('databaseConfiguration').databaseconfig.dbVMAdminUsername]",
+      "dbVMAdminPassword": "[steps('databaseConfiguration').databaseconfig.dbVMAdminPassword.password]",
+      "dbUser": "[steps('databaseConfiguration').databaseuser.infaDomainDBUser]",
+      "dbPassword": "[steps('databaseConfiguration').databaseuser.infaDomainDBPassword]",
+      "mrsdbuser": "[steps('dqConfig').mrsdbconfig.mrsDBuser]",
+      "mrsdbpwd": "[steps('dqConfig').mrsdbconfig.mrsDBpassword]",
+      "refdatadbuser": "[steps('dqConfig').cmsdbconfig.refDataDBuser]",
+      "refdatadbpwd": "[steps('dqConfig').cmsdbconfig.refDataDBpassword]",
+      "profiledbuser": "[steps('dqConfig').profiledbconfig.profileDBuser]",
+      "profiledbpwd": "[steps('dqConfig').profiledbconfig.profileDBpassword]",
+      "storageName": "[steps('infraConfiguration').storageAccount.name]",
+      "storageType": "[steps('infraConfiguration').storageAccount.type]",
+      "storageExistingOrNew": "[steps('infraConfiguration').storageAccount.newOrExisting]",
+      "existingStorageRG": "[steps('infraConfiguration').storageAccount.resourceGroup]",
+      "vnetName": "[steps('infraConfiguration').infavnet.name]",
+      "addressPrefixes": "[steps('infraConfiguration').infavnet.addressPrefix]",
+      "vnetExistingOrNew": "[steps('infraConfiguration').infavnet.newOrExisting]",
+      "existingVnetRG": "[steps('infraConfiguration').infavnet.resourceGroup]",
+      "subnetName": "[steps('infraConfiguration').infavnet.subnets.subnet1.name]",
+      "subnetPrefix": "[steps('infraConfiguration').infavnet.subnets.subnet1.addressPrefix]"
     }
+  }
 }
