@@ -223,7 +223,7 @@
             }
           },
           {
-            "apiVersion": "2017-03-30",
+            "apiVersion": "2017-12-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(parameters('dbVMName'), '/SqlIaasExtension')]",
             "location": "[parameters('location')]",
