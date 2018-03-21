@@ -31,7 +31,7 @@
             "name": "[parameters('vnetName')]",
             "type": "Microsoft.Network/virtualNetworks",
             "location": "[parameters('location')]",
-            "apiVersion": "2016-10-01",
+            "apiVersion": "2017-09-01",
             "dependsOn": [
             ],
             "tags": {
