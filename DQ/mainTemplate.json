@@ -178,12 +178,12 @@
         "description": "Node VM name prefix"
       }
     },
-    "infaVersion": {
+  /*  "infaVersion": {
       "type": "string",
       "metadata": {
         "description": "Informatica version"
       }
-    },
+    }, */
 
     "infaDomainName": {
       "type": "string",
