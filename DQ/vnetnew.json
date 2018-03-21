@@ -9,7 +9,7 @@
       "type": "string"
     },
     "addressPrefixes": {
-      "type": "array"
+      "type": "string"
     },
     "subnetName": {
       "type": "string"
@@ -27,33 +27,31 @@
     "variables": {
     },
     "resources": [
-        {
-            "name": "[parameters('vnetName')]",
-            "type": "Microsoft.Network/virtualNetworks",
-            "location": "[parameters('location')]",
-            "apiVersion": "2017-09-01",
-            "dependsOn": [
-            ],
-            "tags": {
-                "displayName": "vnet",
-                "provider": "[toUpper(parameters('informaticaTags').provider)]"
-            },
-            "properties": {
-                "addressSpace": {
-                  "addressPrefixes": [
-                    "[parameters('addressPrefixes')]"
-                  ]
-                },
-                "subnets": [
-                    {
-                        "name": "[parameters('subnetName')]",
-                        "properties": {
-                            "addressPrefix": "[parameters('subnetPrefix')]"
-                        }
-                    }
-                ]
+      {
+        "name": "[parameters('vnetName')]",
+        "type": "Microsoft.Network/virtualNetworks",
+        "location": "[parameters('location')]",
+        "apiVersion": "2017-09-01",
+        "dependsOn": [
+        ],
+        "tags": {
+          "displayName": "vnet",
+          "provider": "[toUpper(parameters('informaticaTags').provider)]"
+        },
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": "[parameters('addressPrefixes')]"
+          },
+          "subnets": [
+            {
+              "name": "[parameters('subnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('subnetPrefix')]"
+              }
             }
+          ]
         }
+      }
     ],
     "outputs": {
         "vnetId": {
