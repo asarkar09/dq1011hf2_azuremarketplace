@@ -9,7 +9,7 @@
       "type": "string"
     },
     "addressPrefixes": {
-      "type": "array"
+      "type": "string"
     },
     "subnetName": {
       "type": "string"
