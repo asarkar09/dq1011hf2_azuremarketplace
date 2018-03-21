@@ -24,7 +24,7 @@
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "10.1.1HF2",
+                  "label": "10.1.1 HF2",
                   "value": "1011"
                 }
               ]
@@ -600,7 +600,7 @@
       "storageExistingOrNew": "[steps('infraConfiguration').storageAccount.newOrExisting]",
       "existingStorageRG": "[steps('infraConfiguration').storageAccount.resourceGroup]",
       "vnetName": "[steps('infraConfiguration').infavnet.name]",
-      "addressPrefixes": "[steps('infraConfiguration').infavnet.addressPrefix]",
+      "addressPrefixes": "[steps('infraConfiguration').infavnet.addressPrefixes]",
       "vnetExistingOrNew": "[steps('infraConfiguration').infavnet.newOrExisting]",
       "existingVnetRG": "[steps('infraConfiguration').infavnet.resourceGroup]",
       "subnetName": "[steps('infraConfiguration').infavnet.subnets.subnet1.name]",
