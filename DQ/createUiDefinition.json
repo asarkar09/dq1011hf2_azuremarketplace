@@ -17,7 +17,7 @@
         "elements": [
         {
             "name": "infaVersion",
-            "type": "Microsoft.Common.DropDown",
+            "type": "Microsoft.Common.Section",
             "label": "Informatica Data Quality version 10.1.1 HF2",
    /*         "defaultValue": "10.1.1",
             "toolTip": "Informatica Data Quality product version",
