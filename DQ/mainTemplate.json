@@ -59,7 +59,7 @@
       }
     },
     "addressPrefixes": {
-      "type": "string",
+      "type": "array",
       "defaultValue": "",
       "metadata": {
         "description": "VNET address prefix"
