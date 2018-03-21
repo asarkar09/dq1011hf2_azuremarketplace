@@ -12,7 +12,9 @@
       "value": " "
     },
     "addressPrefixes": {
-      "value": "10.0.0.0/16"
+      "value": [
+          "10.0.0.0/16"
+      ]
     },
     "subnetPrefix": {
       "value": "10.0.0.0/24"
@@ -45,7 +47,7 @@
       "value": ""
     },
     "storageName": {
-      "value": "dq1011hf2dq100"
+      "value": "dq1011hf2dq101"
     },
     "nodeVMNamePrefix": {
       "value": "RHVM"
