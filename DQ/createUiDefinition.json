@@ -15,7 +15,7 @@
         },
         "bladeTitle": "Informatica Domain Settings",
         "elements": [
-          {
+        {
             "name": "infaVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Informatica Data Quality version",
@@ -30,7 +30,7 @@
               ]
             },
             "visible": true
-          },
+          }, 
           {
             "name": "infaDomainName",
             "type": "Microsoft.Common.TextBox",
