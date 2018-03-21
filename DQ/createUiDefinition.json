@@ -18,8 +18,8 @@
         {
             "name": "infaVersion",
             "type": "Microsoft.Common.DropDown",
-            "label": "Informatica Data Quality version",
-            "defaultValue": "10.1.1",
+            "label": "Informatica Data Quality version 10.1.1 HF2",
+   /*         "defaultValue": "10.1.1",
             "toolTip": "Informatica Data Quality product version",
             "constraints": {
               "allowedValues": [
@@ -28,7 +28,7 @@
                   "value": "1011"
                 }
               ]
-            },
+            },  */
             "visible": true
           }, 
           {
