@@ -16,22 +16,6 @@
         "bladeTitle": "Informatica Domain Settings",
         "elements": [
           {
-            "name": "infaVersion",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Informatica Data Quality version",
-            "defaultValue": "10.1.1",
-            "toolTip": "Informatica Data Quality product version",
-            "constraints": {
-              "allowedValues": [
-                {
-                  "label": "10.1.1HF2",
-                  "value": "1011"
-                }
-              ]
-            },
-            "visible": true
-          }, 
-          {
             "name": "infaDomainName",
             "type": "Microsoft.Common.TextBox",
             "label": "Informatica domain name",
@@ -575,7 +559,6 @@
       "nodeVMAdminSshPublicKey": "[steps('nodeVMConfiguration').nodeVMAdminPasswordLin.sshPublicKey]",
       "nodeVMSize": "[coalesce(steps('nodeVMConfiguration').nodeVMSizeWin, steps('nodeVMConfiguration').nodeVMSizeLin)]",
       "nodeVMOS": "[steps('nodeVMConfiguration').nodeVMOS]",
-      "infaVersion": "[steps('infaDomainConfiguration').infaVersion]",
       "infaDomainName": "[steps('infaDomainConfiguration').infaDomainName]",
       "infaDomainUser": "[steps('infaDomainConfiguration').infaDomainUser]",
       "infaDomainPassword": "[steps('infaDomainConfiguration').infaDomainPassword]",
